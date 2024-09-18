@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+/**/
+
+.space{
+    cursor: auto;
+    font-family: 'Montserrat', sans-serif;
+}
+
+button[name="home-button"] {
+    border:none;
+    height: 120px;
+    width: 120px;
+    background-image: url("http://localhost:9000/development-internet-applications/mos_logo.png");
+    object-fit: cover;
+    background-size: cover;
+    background-position: center center;
+}
+
+.navigation_line {
+    margin-right: 20px;
+    display: flex; /* Используем Flexbox для контейнера */
+    flex-direction: row; /* Элементы располагаются в одну строку */
+    justify-content: space-between; /* Двигаем элементы влево */
+    gap: 10px; /* Расстояние в 10px между элементами */
+    margin-left: 150px;
+}
+
+.search_field_class{
+
+    display: flex; /* Используем Flexbox для контейнера */
+    flex-direction: row; /* Элементы располагаются в одну строку */
+    justify-content: flex-start; /* Двигаем элементы влево */
+    gap: 15px; /* Расстояние в 10px между элементами */
+}
+
+.search_field {
+    background-color: #d3d3d3; /* Светло серый фон */
+    border: none; /* Без границы */
+    border-radius: 15px; /* Закругление углов */
+    padding: 10px; /* Отступы внутри поля ввода */
+    font-size: 20px; /* Размер шрифта */
+}
+input[type="search"]::-webkit-search-decoration, /*убрать синий крестик*/
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration { display: none; }
+
+
+/* CSS для кнопки поиска */
+button{
+    font-size: 20px;
+    border: 2px solid #ff0000; /* Без границы */
+    border-radius: 15px; /* Закругление углов у кнопки */
+    padding: 10px 15px; /* Отступы внутри кнопки */
+    cursor: pointer; /* Изменяем курсор на указатель при наведении */
+    background: white;
+    color: black; /* Цвет текста кнопки */
+}
+
+button:hover {
+    background-color: #fff0f0;
+}
+
+.container {
+    margin-left: 150px;
+    margin-right: 20px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 20px;
+    border: 2px solid #ff0000;
+    border-radius: 20px;
+    justify-items: center;
+}
+
+.card{
+    margin: 10px;
+    width: 350px;
+    border-radius: 20px;
+    background-color: #f4f4f4;
+    padding: 3%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.card-text{
+    display: flex;
+    flex-direction: column;
+    padding-left: 30px;
+    padding-bottom: 5px;
+    justify-content: space-between;
+}
+
+.card-image{
+    width: 100%;
+    height: 211px;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+.card-image-container{
+    width: 150%;
+}
+
+.title-in-card{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.card-button{
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 2px solid #ff0000;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+}
+.card-button:hover {
+    background-color: #fff0f0;
+}
+a {
+    color: #000 !important;
+    text-decoration: none
+}

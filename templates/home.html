@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="rus">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="space">
+    <div class="header">
+        <button name="home-button" onclick="window.location.href = 'http://localhost:8080/home';"></button>
+    </div>
+    <div class="navigation_line">
+        <form action="/home" method="get" class="search_field_class">
+            <input class="search_field" type="search" name="query" id="site_search" placeholder="Искать здесь..." value="{{.searchQuery}}" size="100">
+            <button name="search" type="submit">Поиск</button>
+        </form>
+        <button name="cart" onclick="window.location.href = 'http://localhost:8080/cart';">Корзина</button>
+    </div>
+    <div class="container">
+        {{range .filteredCards}}
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="{{.ImageUrl}}" class="card-image">
+                </div>
+                <div class="card-text">
+                    <p class="title-in-card">{{.CardText}}</p>
+                    <a href="http://localhost:8080/item_detailed/{{.HrefID}}" class="card-button">Подробнее</a>
+                </div>
+            </div>
+          {{end}}
+    </div>
+</div>
+</body>
+</html>

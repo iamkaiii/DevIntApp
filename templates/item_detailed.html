@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="rus">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{.tittle}}</title>
+  <link rel="stylesheet" href="/css/style_item_detailed.css"/>
+</head>
+<body>
+<div class="space">
+  <div class="header">
+    <button name="home-button" onclick="window.location.href = 'http://localhost:8080/home';"></button>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="card-image-container">
+        <img src="{{.card_data.ImageUrl}}" class="card-image">
+      </div>
+      <div class="card-text">
+        <p class="title-in-card">{{.card_data.CardText}}</p>
+        <p> {{ replaceNewline .card_detailed_data.CardDetail}}</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
