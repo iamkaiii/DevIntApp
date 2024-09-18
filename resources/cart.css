@@ -24,9 +24,14 @@ button:hover {
 }
 
 .navigation_line{
+    gap: 20px;
     margin-left: 150px;
     margin-right: 35px;
     text-align: right;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .cart-text{
@@ -97,4 +102,21 @@ button:hover {
     border-radius: 20px;
     color:black;
 
+}
+
+.card-button {
+    flex: 1; /* Заставляем кнопки занимать одинаковое пространство */
+    padding: 15px; /* Добавляем отступы для кнопок */
+    text-align: center; /* Выравниваем текст по центру */
+    border: 2px solid #ff0000; /* Убираем стандартные границы кнопок */
+    background-color: #ffffff;
+    color: black; /* Цвет текста */
+    cursor: pointer; /* Изменяем курсор при наведении */
+    margin: 5px; /* Добавляем небольшой отступ между кнопками */
+    border-radius: 15px; /* Скругляем углы кнопок */
+    font-size: 16px; /* Устанавливаем размер шрифта */
+}
+
+.card-button:hover {
+    background-color: #fff0f0;
 }

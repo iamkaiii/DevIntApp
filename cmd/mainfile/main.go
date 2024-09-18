@@ -6,7 +6,10 @@ import (
 )
 
 func main() {
-	log.Println("App started!")
-	api.StartServer()
-	log.Println("App finished!")
+	app, err := api.New()
+	if err != nil {
+		log.Println("app can not be created", err)
+		return
+	}
+	app.Run()
 }

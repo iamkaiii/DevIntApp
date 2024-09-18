@@ -17,7 +17,7 @@
             <input class="search_field" type="search" name="query" id="site_search" placeholder="Искать здесь..." value="{{.searchQuery}}" size="100">
             <button name="search" type="submit">Поиск</button>
         </form>
-        <button name="cart" onclick="window.location.href = 'http://localhost:8080/cart';">Корзина</button>
+        <button name="cart" onclick="window.location.href = 'http://localhost:8080/cart';">Заявка</button>
     </div>
     <div class="container">
         {{range .filteredCards}}
@@ -27,7 +27,12 @@
                 </div>
                 <div class="card-text">
                     <p class="title-in-card">{{.CardText}}</p>
-                    <a href="http://localhost:8080/item_detailed/{{.HrefID}}" class="card-button">Подробнее</a>
+                    <div class="buttons-in-card">
+                        <a href="http://localhost:8080/item_detailed/{{.ID}}" class="card-button">Подробнее</a>
+                        <form action="/add_to_cart/{{.ID}}" method="POST" style="display:inline;">
+                            <button type="submit" class="card-button">+</button>
+                        </form>
+                    </div>
                 </div>
             </div>
           {{end}}

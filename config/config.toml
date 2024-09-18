@@ -1,0 +1,4 @@
+ServiceHost = "0.0.0.0"
+ServicePort = 80
+
+#файл конфигурации

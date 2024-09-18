@@ -30,7 +30,7 @@ button[name="home-button"] {
     display: flex; /* Используем Flexbox для контейнера */
     flex-direction: row; /* Элементы располагаются в одну строку */
     justify-content: flex-start; /* Двигаем элементы влево */
-    gap: 15px; /* Расстояние в 10px между элементами */
+    gap: 20px; /* Расстояние в 10px между элементами */
 }
 
 .search_field {
@@ -75,7 +75,7 @@ button:hover {
 
 .card{
     margin: 10px;
-    width: 350px;
+    width: 360px;
     border-radius: 20px;
     background-color: #f4f4f4;
     padding: 3%;
@@ -88,7 +88,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     padding-left: 30px;
-    padding-bottom: 5px;
+    padding-bottom: 10px;
     justify-content: space-between;
 }
 
@@ -107,18 +107,27 @@ button:hover {
     font-size: 18px;
     font-weight: bold;
 }
-
-.card-button{
-    padding: 8px 10px;
-    border-radius: 10px;
-    border: 2px solid #ff0000;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 500;
+.buttons-in-card {
+    display: flex; /* Используем flexbox для выравнивания кнопок */
 }
+
+.card-button {
+    flex: 1; /* Заставляем кнопки занимать одинаковое пространство */
+    padding: 10px; /* Добавляем отступы для кнопок */
+    text-align: center; /* Выравниваем текст по центру */
+    border: 2px solid #ff0000; /* Убираем стандартные границы кнопок */
+    background-color: #f4f4f4;
+    color: black; /* Цвет текста */
+    cursor: pointer; /* Изменяем курсор при наведении */
+    margin: 5px; /* Добавляем небольшой отступ между кнопками */
+    border-radius: 10px; /* Скругляем углы кнопок */
+    font-size: 16px; /* Устанавливаем размер шрифта */
+}
+
 .card-button:hover {
     background-color: #fff0f0;
 }
+
 a {
     color: #000 !important;
     text-decoration: none

@@ -13,7 +13,10 @@
     <button name="home-button" onclick="window.location.href = 'http://localhost:8080/home';"></button>
   </div>
   <div class="navigation_line">
-    <p class="cart-text">Корзина</p>
+    <p class="cart-text">Заявка</p>
+    <form action="" method="POST" style="display:inline;">
+      <button type="submit" class="card-button">Удалить</button>
+    </form>
   </div>
   <div class="container">
     {{range .cards_data}}
