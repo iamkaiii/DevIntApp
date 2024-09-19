@@ -33,7 +33,7 @@ button:hover {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     margin-top: 20px;
-    border: 2px solid #ff0000;
+    border: 2px solid #c22;
     border-radius: 20px;
 }
 

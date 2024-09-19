@@ -13,7 +13,10 @@
     <button name="home-button" onclick="window.location.href = 'http://localhost:8080/home';"></button>
   </div>
   <div class="navigation_line">
-    <p class="cart-text">Корзина</p>
+    <p class="cart-text">Заявка</p>
+    <p class="cart-fields">Получатель: Каятский Павел</p>
+    <p class="cart-fields">Адрес: Красная Площадь, 1</p>
+    <p class="cart-fields">Дата и время доставки: 22.09.24 12:00</p>
   </div>
   <div class="container">
     {{range .cards_data}}
@@ -23,7 +26,7 @@
             <img src="{{.ImageUrl}}" class="card-image">
           </div>
           <div class="card-text">
-            <p class="title-in-card">{{.CardText}}</p>
+            <p class="title-in-card">{{.MealInfo}}{{.MealWeight}}</p>
           </div>
         </div>
         <div class="item_count">

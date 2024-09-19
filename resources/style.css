@@ -30,7 +30,7 @@ button[name="home-button"] {
     display: flex; /* Используем Flexbox для контейнера */
     flex-direction: row; /* Элементы располагаются в одну строку */
     justify-content: flex-start; /* Двигаем элементы влево */
-    gap: 15px; /* Расстояние в 10px между элементами */
+    gap: 20px; /* Расстояние в 10px между элементами */
 }
 
 .search_field {
@@ -49,7 +49,7 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
 /* CSS для кнопки поиска */
 button{
     font-size: 20px;
-    border: 2px solid #ff0000; /* Без границы */
+    border: 2px solid #c22; /* Без границы */
     border-radius: 15px; /* Закругление углов у кнопки */
     padding: 10px 15px; /* Отступы внутри кнопки */
     cursor: pointer; /* Изменяем курсор на указатель при наведении */
@@ -68,7 +68,7 @@ button:hover {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     margin-top: 20px;
-    border: 2px solid #ff0000;
+    border: 2px solid #c22;
     border-radius: 20px;
     justify-items: center;
 }
@@ -111,7 +111,7 @@ button:hover {
 .card-button{
     padding: 8px 10px;
     border-radius: 10px;
-    border: 2px solid #ff0000;
+    border: 2px solid #c22;
     text-decoration: none;
     font-size: 16px;
     font-weight: 500;
@@ -122,4 +122,14 @@ button:hover {
 a {
     color: #000 !important;
     text-decoration: none
+}
+
+
+.child-meal-count {
+
+    background-color: #c22; /* Красный фон для счетчика */
+    color: white; /* Цвет текста счетчика */
+    border-radius: 50%; /* Кружочек */
+    padding: 2px 6px; /* Внутренние отступы для кружочка */
+    font-weight: bold; /* Жирный шрифт */
 }

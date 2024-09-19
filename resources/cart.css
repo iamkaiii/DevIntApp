@@ -50,7 +50,7 @@ button:hover {
     display: flex;
     justify-content: space-between;
     flex-direction: row;
-    border: 2px solid #ff0000;
+    border: 2px solid #c22;
 }
 
 .card-image-n-text{

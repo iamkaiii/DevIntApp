@@ -14,10 +14,13 @@
     </div>
     <div class="navigation_line">
         <form action="/home" method="get" class="search_field_class">
-            <input class="search_field" type="search" name="query" id="site_search" placeholder="Искать здесь..." value="{{.searchQuery}}" size="100">
+            <input class="search_field" type="search" name="СhildMealItem" id="site_search" placeholder="Искать здесь..." value="{{.searchQuery}}" size="97">
             <button name="search" type="submit">Поиск</button>
         </form>
-        <button name="cart" onclick="window.location.href = 'http://localhost:8080/cart';">Корзина</button>
+        <button name="cart" onclick="window.location.href = 'http://localhost:8080/cart/{{.cart_ID}}';">
+            Заявка <span class="child-meal-count">{{.child_meal_count}}</span>
+        </button>
+
     </div>
     <div class="container">
         {{range .filteredCards}}
@@ -26,8 +29,8 @@
                     <img src="{{.ImageUrl}}" class="card-image">
                 </div>
                 <div class="card-text">
-                    <p class="title-in-card">{{.CardText}}</p>
-                    <a href="http://localhost:8080/item_detailed/{{.HrefID}}" class="card-button">Подробнее</a>
+                    <p class="title-in-card">{{.MealInfo}}{{.MealWeight}}</p>
+                    <a href="http://localhost:8080/item_detailed/{{.ID}}" class="card-button">Подробнее</a>
                 </div>
             </div>
           {{end}}
