@@ -49,7 +49,7 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
 /* CSS для кнопки поиска */
 button{
     font-size: 20px;
-    border: 2px solid #ff0000; /* Без границы */
+    border: 2px solid #c22; /* Без границы */
     border-radius: 15px; /* Закругление углов у кнопки */
     padding: 10px 15px; /* Отступы внутри кнопки */
     cursor: pointer; /* Изменяем курсор на указатель при наведении */
@@ -68,14 +68,14 @@ button:hover {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     margin-top: 20px;
-    border: 2px solid #ff0000;
+    border: 2px solid #c22;
     border-radius: 20px;
     justify-items: center;
 }
 
 .card{
     margin: 10px;
-    width: 360px;
+    width: 350px;
     border-radius: 20px;
     background-color: #f4f4f4;
     padding: 3%;
@@ -88,7 +88,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     padding-left: 30px;
-    padding-bottom: 10px;
+    padding-bottom: 5px;
     justify-content: space-between;
 }
 
@@ -107,28 +107,32 @@ button:hover {
     font-size: 18px;
     font-weight: bold;
 }
-.buttons-in-card {
-    display: flex; /* Используем flexbox для выравнивания кнопок */
-}
 
-.card-button {
-    flex: 1; /* Заставляем кнопки занимать одинаковое пространство */
-    padding: 10px; /* Добавляем отступы для кнопок */
-    text-align: center; /* Выравниваем текст по центру */
-    border: 2px solid #ff0000; /* Убираем стандартные границы кнопок */
-    background-color: #f4f4f4;
-    color: black; /* Цвет текста */
-    cursor: pointer; /* Изменяем курсор при наведении */
-    margin: 5px; /* Добавляем небольшой отступ между кнопками */
-    border-radius: 10px; /* Скругляем углы кнопок */
-    font-size: 16px; /* Устанавливаем размер шрифта */
-}
 
+
+.card-button{
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 2px solid #c22;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    background: none;
+}
 .card-button:hover {
     background-color: #fff0f0;
 }
 
-a {
-    color: #000 !important;
-    text-decoration: none
+.buttons-in-card{
+    display: flex;
+    gap: 10px;
 }
+
+.meals-count {
+    background-color: #c22; /* Красный фон для счетчика */
+    color: white; /* Цвет текста счетчика */
+    border-radius: 50%; /* Кружочек */
+    padding: 2px 6px; /* Внутренние отступы для кружочка */
+    font-weight: bold; /* Жирный шрифт */
+}
+

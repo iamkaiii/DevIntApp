@@ -24,14 +24,9 @@ button:hover {
 }
 
 .navigation_line{
-    gap: 20px;
     margin-left: 150px;
     margin-right: 35px;
     text-align: right;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    justify-content: space-between;
 }
 
 .cart-text{
@@ -55,7 +50,7 @@ button:hover {
     display: flex;
     justify-content: space-between;
     flex-direction: row;
-    border: 2px solid #ff0000;
+    border: 2px solid #c22;
 }
 
 .card-image-n-text{
@@ -104,19 +99,23 @@ button:hover {
 
 }
 
-.card-button {
-    flex: 1; /* Заставляем кнопки занимать одинаковое пространство */
-    padding: 15px; /* Добавляем отступы для кнопок */
-    text-align: center; /* Выравниваем текст по центру */
-    border: 2px solid #ff0000; /* Убираем стандартные границы кнопок */
-    background-color: #ffffff;
-    color: black; /* Цвет текста */
-    cursor: pointer; /* Изменяем курсор при наведении */
-    margin: 5px; /* Добавляем небольшой отступ между кнопками */
-    border-radius: 15px; /* Скругляем углы кнопок */
-    font-size: 16px; /* Устанавливаем размер шрифта */
+.delete-button{
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 2px solid #c22;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    background: none;
+}
+.delete-button:hover {
+    background-color: #fff0f0;
 }
 
-.card-button:hover {
-    background-color: #fff0f0;
+.header_delete_btn{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    justify-content: end;
 }

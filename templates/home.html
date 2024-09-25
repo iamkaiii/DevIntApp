@@ -14,28 +14,31 @@
     </div>
     <div class="navigation_line">
         <form action="/home" method="get" class="search_field_class">
-            <input class="search_field" type="search" name="query" id="site_search" placeholder="Искать здесь..." value="{{.searchQuery}}" size="100">
+            <input class="search_field" type="search" name="childmeal" id="site_search" placeholder="Искать здесь..." value="{{.searchQuery}}" size="97">
             <button name="search" type="submit">Поиск</button>
         </form>
-        <button name="cart" onclick="window.location.href = 'http://localhost:8080/cart';">Заявка</button>
+        <button name="cart" onclick="window.location.href = 'http://localhost:8080/cart/{{.cart_ID}}';">
+            Заявка <span class="meals-count">{{.meals_cnt}}</span>
+        </button>
     </div>
     <div class="container">
         {{range .filteredCards}}
-            <div class="card">
-                <div class="card-image-container">
-                    <img src="{{.ImageUrl}}" class="card-image">
-                </div>
-                <div class="card-text">
-                    <p class="title-in-card">{{.CardText}}</p>
-                    <div class="buttons-in-card">
-                        <a href="http://localhost:8080/item_detailed/{{.ID}}" class="card-button">Подробнее</a>
-                        <form action="/add_to_cart/{{.ID}}" method="POST" style="display:inline;">
-                            <button type="submit" class="card-button">+</button>
-                        </form>
-                    </div>
+        <div class="card">
+            <div class="card-image-container">
+                <img src="{{.ImageUrl}}" class="card-image">
+            </div>
+            <div class="card-text">
+                <p class="title-in-card">{{.MealInfo}}{{.MealWeight}}</p>
+                <div class="buttons-in-card">
+                    <button onclick="window.location = 'http://localhost:8080/meal/{{.ID}}'" class="card-button">Подробнее</button>
+                    <form action="/home" method="post">
+                        <input type="hidden" name="add" value="{{.ID}}">
+                        <button class="card-button">+</button>
+                    </form>
                 </div>
             </div>
-          {{end}}
+        </div>
+        {{end}}
     </div>
 </div>
 </body>

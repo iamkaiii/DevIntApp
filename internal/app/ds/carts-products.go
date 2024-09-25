@@ -1,9 +1,9 @@
 package ds
 
-type CartsNProducts struct {
-	CartID    uint
-	ProductID uint
-	Cart      Carts    `gorm:"primaryKey;foreignKey:CartID"`
-	Product   Products `gorm:"primaryKey;foreignKey:ProductID"`
-	Order     int
+type CartsNMeals struct {
+	CartID      int
+	ChildMealID int
+	Cart        Carts `gorm:"primaryKey;foreignKey:CartID"`
+	ChildMeal   Meals `gorm:"primaryKey;foreignKey:ChildMealID"`
+	OrderO      int
 }

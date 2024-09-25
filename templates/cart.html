@@ -13,26 +13,32 @@
     <button name="home-button" onclick="window.location.href = 'http://localhost:8080/home';"></button>
   </div>
   <div class="navigation_line">
-    <p class="cart-text">Заявка</p>
-    <form action="" method="POST" style="display:inline;">
-      <button type="submit" class="card-button">Удалить</button>
-    </form>
+    <div class="header_delete_btn">
+      <p class="cart-text">Заявка</p>
+      <form action="/cart/{{.CartID}}" method="post">
+        <input type="hidden" name="delete" value="{{.CartID}}">
+        <button class="delete-button">Удалить</button>
+      </form>
+    </div>
+    <p class="cart-fields">Получатель: Каятский Павел</p>
+    <p class="cart-fields">Адрес: Красная Площадь, 1</p>
+    <p class="cart-fields">Дата и время доставки: 22.09.24 12:00</p>
   </div>
   <div class="container">
-    {{range .cards_data}}
-      <div class="card">
-        <div class="card-image-n-text">
-          <div class="card-image">
-            <img src="{{.ImageUrl}}" class="card-image">
-          </div>
-          <div class="card-text">
-            <p class="title-in-card">{{.CardText}}</p>
-          </div>
+    {{range .CartMeals}}
+    <div class="card">
+      <div class="card-image-n-text">
+        <div class="card-image">
+          <img src="{{.ImageUrl}}" class="card-image">
         </div>
-        <div class="item_count">
-          <p class="item_count_value">1</p>
+        <div class="card-text">
+          <p class="title-in-card">{{.MealInfo}}{{.MealWeight}}</p>
         </div>
       </div>
+      <div class="item_count">
+        <p class="item_count_value">1</p>
+      </div>
+    </div>
     {{end}}
   </div>
 </div>

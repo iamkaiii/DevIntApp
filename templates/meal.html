@@ -18,8 +18,8 @@
         <img src="{{.card_data.ImageUrl}}" class="card-image">
       </div>
       <div class="card-text">
-        <p class="title-in-card">{{.card_data.CardText}}</p>
-        <p> {{ replaceNewline .card_data.Description}}</p>
+        <p class="title-in-card">{{.card_data.MealInfo}}{{.card_data.MealWeight}}</p>
+        <p> {{ replaceNewline .card_data.MealDetail}}</p>
       </div>
     </div>
   </div>

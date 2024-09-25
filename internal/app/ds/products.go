@@ -1,9 +1,10 @@
 package ds
 
-type Products struct {
-	ID          uint `gorm:"primaryKey"`
-	CardText    string
-	Description string
-	Status      int
-	ImageUrl    string
+type Meals struct {
+	ID         int `gorm:"primaryKey"`
+	MealInfo   string
+	MealWeight string
+	MealDetail string
+	ImageUrl   string
+	Status     bool
 }

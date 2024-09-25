@@ -5,7 +5,6 @@ import (
 	"DevIntApp/internal/app/ds"
 	"DevIntApp/internal/app/dsn"
 	"DevIntApp/internal/app/repository"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"log"
@@ -24,8 +23,7 @@ func (a *Application) Run() {
 
 	r := gin.Default()
 
-	cards, err := a.repo.GetAllProducts()
-	fmt.Println(err)
+	var err error
 
 	r.SetFuncMap(template.FuncMap{
 		"replaceNewline": func(text string) template.HTML {
@@ -33,60 +31,218 @@ func (a *Application) Run() {
 		},
 	})
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-
 	r.Static("/css", "./resources")
 	r.LoadHTMLGlob("templates/*")
 
 	r.GET("/home", func(c *gin.Context) {
+		childmealsquery := c.Query("childmeal") // Получаем поисковый запрос из URL
+		var FilteredMeals []ds.Meals
 
-		query := c.Query("query") // Получаем поисковый запрос из URL
-		var find_prod []ds.Products
-		if query == "" {
-			find_prod = cards
+		if childmealsquery == "" {
+			FilteredMeals, err = a.repo.GetAllMeals()
+			if err != nil {
+				log.Println("unable to get all meals")
+				c.Error(err)
+				return
+			}
 		} else {
-			find_prod, err = a.repo.GetProductByCardText(query)
+			FilteredMeals, err = a.repo.GetMealByMealInfo(childmealsquery)
+			if err != nil {
+				log.Println("unable to get meal by info")
+				c.Error(err)
+				return
+			}
 		}
 
-		c.HTML(http.StatusOK, "home.html", gin.H{
-			"title":         "Заказы на молочную кухню",
-			"filteredCards": find_prod,
-			"searchQuery":   query,
-		})
-	})
+		var cart_id int
 
-	r.GET("/item_detailed/:id", func(c *gin.Context) {
-		id := c.Param("id") // Получаем ID из URL
-		index, err := strconv.Atoi(id)
-
-		if err != nil || index < 0 || index > len(cards) {
-			c.String(http.StatusBadRequest, "Invalid ID")
-			return
+		wrk_cart, err := a.repo.GetWorkingCart()
+		log.Println(err)
+		if len(wrk_cart) == 0 {
+			new_cart, err := a.repo.CreateCart()
+			cart_id = new_cart[0].ID
+			log.Println(err)
+		} else {
+			cart_id = wrk_cart[0].ID
 		}
 
-		card, err := a.repo.GetProductByID(index)
-		if err != nil { // если не получилось
-			log.Printf("cant get card by id %v", err)
+		MealsIDs, err := a.repo.GetMealsIDsByCartID(cart_id)
+		if err != nil {
+			log.Println("unable to get MealsIDsByCartID")
 			c.Error(err)
 			return
 		}
 
-		c.HTML(http.StatusOK, "item_detailed.html", gin.H{
-			"title":     "Main website",
-			"card_data": card,
+		c.HTML(http.StatusOK, "home.html", gin.H{
+			"title":         "Заказы на молочную кухню",
+			"filteredCards": FilteredMeals,
+			"searchQuery":   childmealsquery,
+			"cart_ID":       cart_id,
+			"meals_cnt":     len(MealsIDs),
 		})
 	})
 
-	r.GET("/cart", func(c *gin.Context) {
+	r.POST("/home", func(c *gin.Context) {
+
+		id := c.PostForm("add")
+		log.Println(id)
+
+		index, err := strconv.Atoi(id)
+
+		if err != nil { // если не получилось
+			log.Printf("cant transform ind", err)
+			c.Error(err)
+			c.String(http.StatusBadRequest, "Invalid ID")
+			return
+		}
+
+		a.repo.AddToCart(index)
+
+		childmealsquery := c.Query("childmeal") // Получаем поисковый запрос из URL
+		var FilteredMeals []ds.Meals
+
+		if childmealsquery == "" {
+			FilteredMeals, err = a.repo.GetAllMeals()
+			if err != nil {
+				log.Println("unable to get all meals")
+				c.Error(err)
+				return
+			}
+		} else {
+			FilteredMeals, err = a.repo.GetMealByMealInfo(childmealsquery)
+			if err != nil {
+				log.Println("unable to get meal by info")
+				c.Error(err)
+				return
+			}
+		}
+
+		var cart_id int
+
+		wrk_cart, err := a.repo.GetWorkingCart()
+		log.Println(err)
+		if len(wrk_cart) == 0 {
+			new_cart, err := a.repo.CreateCart()
+			cart_id = new_cart[0].ID
+			log.Println(err)
+		} else {
+			cart_id = wrk_cart[0].ID
+		}
+
+		MealsIDs, err := a.repo.GetMealsIDsByCartID(cart_id)
+		if err != nil {
+			log.Println("unable to get MealsIDsByCartID")
+			c.Error(err)
+			return
+		}
+
+		c.HTML(http.StatusOK, "home.html", gin.H{
+			"title":         "Заказы на молочную кухню",
+			"filteredCards": FilteredMeals,
+			"searchQuery":   childmealsquery,
+			"cart_ID":       cart_id,
+			"meals_cnt":     len(MealsIDs),
+		})
+
+	})
+
+	r.GET("/meal/:id", func(c *gin.Context) {
+		id := c.Param("id") // Получаем ID из URL
+		index, err := strconv.Atoi(id)
+
+		if err != nil { // если не получилось
+			log.Printf("cant get card by id %v", err)
+			c.Error(err)
+			c.String(http.StatusBadRequest, "Invalid ID")
+			return
+		}
+
+		childmeal, err := a.repo.GetCardByID(index)
+		if err != nil { // если не получилось
+			log.Printf("cant get card by id %v", err)
+			c.Error(err)
+			c.String(http.StatusBadRequest, "Invalid ID")
+			return
+		}
+
+		c.HTML(http.StatusOK, "meal.html", gin.H{
+			"title":     "Main website",
+			"card_data": childmeal,
+		})
+	})
+
+	r.GET("/cart/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		index, err := strconv.Atoi(id)
+		if err != nil { // если не получилось
+			log.Printf("cant get cart by id %v", err)
+			c.Error(err)
+			c.String(http.StatusBadRequest, "Invalid ID")
+			return
+		}
+
+		MealsIDs, err := a.repo.GetMealsIDsByCartID(index)
+		if err != nil {
+			log.Println("unable to get MealsIDsByCartID")
+			c.Error(err)
+			return
+		}
+
+		MealsInCart := []ds.Meals{}
+		for _, v := range MealsIDs {
+			meal_tmp, err := a.repo.GetMealByID(v.ChildMealID)
+			if err != nil {
+				c.Error(err)
+				return
+			}
+			MealsInCart = append(MealsInCart, meal_tmp[0])
+			log.Println(v.ChildMealID)
+		}
 
 		c.HTML(http.StatusOK, "cart.html", gin.H{
-			"title":      "Корзина",
-			"cards_data": cards,
+			"title":     "Корзина",
+			"CartMeals": MealsInCart,
+			"CartID":    index,
 		})
+	})
+
+	r.POST("/cart/:id", func(c *gin.Context) {
+
+		id := c.Param("id")
+		index, err := strconv.Atoi(id)
+		if err != nil { // если не получилось
+			log.Printf("cant get cart by id %v", err)
+			c.Error(err)
+			c.String(http.StatusBadRequest, "Invalid ID")
+			return
+		}
+
+		a.repo.DeleteCart(index)
+
+		MealsIDs, err := a.repo.GetMealsIDsByCartID(index)
+		if err != nil {
+			log.Println("unable to get MealsIDsByCartID")
+			c.Error(err)
+			return
+		}
+
+		MealsInCart := []ds.Meals{}
+		for _, v := range MealsIDs {
+			meal_tmp, err := a.repo.GetMealByID(v.ChildMealID)
+			if err != nil {
+				c.Error(err)
+				return
+			}
+			MealsInCart = append(MealsInCart, meal_tmp[0])
+			log.Println(v.ChildMealID)
+		}
+
+		c.HTML(http.StatusOK, "cart.html", gin.H{
+			"title":     "Корзина",
+			"CartMeals": MealsInCart,
+			"CartID":    index,
+		})
+
 	})
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
