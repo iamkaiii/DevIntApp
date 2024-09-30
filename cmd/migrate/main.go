@@ -16,7 +16,7 @@ func main() {
 	}
 
 	// Migrate the schema
-	err = db.AutoMigrate(&ds.Meals{}, &ds.Users{}, &ds.Carts{}, &ds.CartsNMeals{})
+	err = db.AutoMigrate(&ds.Meals{}, &ds.Users{}, &ds.Milk_Requests{}, &ds.MilkRequestsNMeals{})
 	if err != nil {
 		panic("cant migrate db")
 	}

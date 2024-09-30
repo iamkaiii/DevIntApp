@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{.tittle}}</title>
-  <link rel="stylesheet" href="/css/style_item_detailed.css"/>
+  <link rel="stylesheet" href="/css/meal.css"/>
 </head>
 <body>
 <div class="space">
@@ -19,7 +19,7 @@
       </div>
       <div class="card-text">
         <p class="title-in-card">{{.card_data.MealInfo}}{{.card_data.MealWeight}}</p>
-        <p> {{ replaceNewline .card_data.MealDetail}}</p>
+        <p>{{replaceNewline .card_data.MealBrand}} {{ replaceNewline .card_data.MealDetail}}</p>
       </div>
     </div>
   </div>

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"DevIntApp/internal/app/ds"
+	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
@@ -41,34 +42,34 @@ func (r *Repository) GetMealByID(mealID int) ([]ds.Meals, error) {
 }
 
 func (r *Repository) GetMealByMealInfo(cardText string) ([]ds.Meals, error) {
-	var product []ds.Meals
-	err := r.db.Where("meal_info LIKE ?", "%"+cardText+"%").First(&product).Error
+	var milkmeal []ds.Meals
+	err := r.db.Where("meal_info LIKE ?", "%"+cardText+"%").First(&milkmeal).Error
 	if err != nil {
 		return nil, err
 	}
-	return product, nil
+	return milkmeal, nil
 }
 
-func (r *Repository) GetWorkingCart() ([]ds.Carts, error) {
-	var cart []ds.Carts
-	err := r.db.Where("status=0").Find(&cart).Error
+func (r *Repository) GetWorkingMilkRequest() ([]ds.Milk_Requests, error) {
+	var milkrequest []ds.Milk_Requests
+	err := r.db.Where("status=0").Find(&milkrequest).Error
 	if err != nil {
 		return nil, err
 	}
-	return cart, nil
+	return milkrequest, nil
 }
 
-func (r *Repository) GetLastCart() ([]ds.Carts, error) {
-	var cart []ds.Carts
-	err := r.db.Order("date_create DESC").Find(&cart).Error
+func (r *Repository) GetLastMilkRequest() ([]ds.Milk_Requests, error) {
+	var milkrequest []ds.Milk_Requests
+	err := r.db.Order("date_create DESC").Find(&milkrequest).Error
 	if err != nil {
 		return nil, err
 	}
-	return cart, nil
+	return milkrequest, nil
 }
 
-func (r *Repository) CreateCart() ([]ds.Carts, error) {
-	newCart := ds.Carts{
+func (r *Repository) CreateMilkRequest() ([]ds.Milk_Requests, error) {
+	newMilkRequest := ds.Milk_Requests{
 		Status:      0,
 		DateCreate:  time.Now(),
 		DateUpdate:  time.Now(),
@@ -76,45 +77,38 @@ func (r *Repository) CreateCart() ([]ds.Carts, error) {
 		CreatorID:   1,
 		ModeratorID: 2,
 	}
-	err := r.db.Create(&newCart).Error
+	err := r.db.Create(&newMilkRequest).Error
 	if err != nil {
 		return nil, err
 	}
-	cart, err := r.GetLastCart()
-	return cart, err
+	milkrequest, err := r.GetLastMilkRequest()
+	return milkrequest, err
 }
 
-func (r *Repository) GetCardByID(id int) (*ds.Meals, error) { // ?
-	card := &ds.Meals{}
-	err := r.db.Where("id = ?", id).First(card).Error
+func (r *Repository) GetMilkRequestByID(id int) (*ds.Meals, error) { // ?
+	milkrequest := &ds.Meals{}
+	err := r.db.Where("id = ?", id).First(milkrequest).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return card, nil
+	return milkrequest, nil
 }
 
-func (r *Repository) AddToCart(id int) (uint, error) {
-	cart, err := r.GetWorkingCart()
+func (r *Repository) AddToMilkRequest(milreq_ID int, milkmeal_ID int) error {
+	query := "INSERT INTO milk_requests_n_meals (cart_id, child_meal_id) VALUES (?, ?)"
+	err := r.db.Exec(query, milreq_ID, milkmeal_ID)
 	if err != nil {
-		return 0, err
+		return fmt.Errorf("failed to add to cart: %w", err)
 	}
-	cart_n_meal := &ds.CartsNMeals{
-		CartID:      cart[0].ID,
-		ChildMealID: id,
-	}
-	err = r.db.Create(&cart_n_meal).Error
-	if err != nil {
-		return 0, err
-	}
-	return 0, err
+	return nil
 }
 
-func (r *Repository) GetMealsIDsByCartID(cartID int) ([]ds.CartsNMeals, error) {
-	var MealsIDs []ds.CartsNMeals
+func (r *Repository) GetMealsIDsByMilkRequestID(cartID int) ([]ds.MilkRequestsNMeals, error) {
+	var MealsIDs []ds.MilkRequestsNMeals
 
 	err := r.db.
-		Where("carts_n_meals.cart_id = ?", cartID).Order("order_o ASC").Find(&MealsIDs).Error
+		Where("milk_requests_n_meals.cart_id = ?", cartID).Order("order_o ASC").Find(&MealsIDs).Error
 
 	if err != nil {
 		return nil, err
@@ -123,10 +117,19 @@ func (r *Repository) GetMealsIDsByCartID(cartID int) ([]ds.CartsNMeals, error) {
 	return MealsIDs, nil
 }
 
-func (r *Repository) DeleteCart(id int) error {
-	err := r.db.Exec("UPDATE carts SET status = ? WHERE id = ?", 3, id).Error
+func (r *Repository) DeleteMilkRequest(id int) error {
+	err := r.db.Exec("UPDATE milk_requests SET status = ? WHERE id = ?", 3, id).Error
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (r *Repository) GetMilkRequestStatusByID(id int) (int, error) {
+	milkrequest := &ds.Milk_Requests{}
+	err := r.db.Where("id = ?", id).First(milkrequest).Error
+	if err != nil {
+		return -1, err
+	}
+	return milkrequest.Status, nil
 }

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{.title}}</title>
-    <link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/home.css"/>
 </head>
 <body>
 <div class="space">
@@ -17,7 +17,9 @@
             <input class="search_field" type="search" name="childmeal" id="site_search" placeholder="Искать здесь..." value="{{.searchQuery}}" size="97">
             <button name="search" type="submit">Поиск</button>
         </form>
-        <button name="cart" onclick="window.location.href = 'http://localhost:8080/cart/{{.cart_ID}}';">
+        <button name="cart"
+                onclick="window.location.href = 'http://localhost:8080/milkreq/{{.cart_ID}}';"
+                {{if eq .meals_cnt 0}} disabled {{end}}>
             Заявка <span class="meals-count">{{.meals_cnt}}</span>
         </button>
     </div>

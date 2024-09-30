@@ -54,31 +54,32 @@ func (a *Application) Run() {
 			}
 		}
 
-		var cart_id int
-
-		wrk_cart, err := a.repo.GetWorkingCart()
-		log.Println(err)
-		if len(wrk_cart) == 0 {
-			new_cart, err := a.repo.CreateCart()
-			cart_id = new_cart[0].ID
-			log.Println(err)
-		} else {
-			cart_id = wrk_cart[0].ID
-		}
-
-		MealsIDs, err := a.repo.GetMealsIDsByCartID(cart_id)
+		var milkreq_len int
+		var milkreq_ID int
+		milkreq_wrk, err := a.repo.GetWorkingMilkRequest()
+		log.Println(milkreq_wrk)
 		if err != nil {
-			log.Println("unable to get MealsIDsByCartID")
-			c.Error(err)
-			return
+			log.Println("unable to get working milk request")
+		}
+		if len(milkreq_wrk) == 0 {
+			milkreq_len = 0
+			milkreq_ID = 0
+
+		} else {
+			milkmeals_in_wrk_req, err := a.repo.GetMealsIDsByMilkRequestID(milkreq_wrk[0].ID)
+			if err != nil {
+				log.Println("unable to get meals ids by cart")
+			}
+			milkreq_len = len(milkmeals_in_wrk_req)
+			milkreq_ID = milkreq_wrk[0].ID
 		}
 
 		c.HTML(http.StatusOK, "home.html", gin.H{
 			"title":         "Заказы на молочную кухню",
 			"filteredCards": FilteredMeals,
 			"searchQuery":   childmealsquery,
-			"cart_ID":       cart_id,
-			"meals_cnt":     len(MealsIDs),
+			"meals_cnt":     milkreq_len,
+			"cart_ID":       milkreq_ID,
 		})
 	})
 
@@ -87,7 +88,7 @@ func (a *Application) Run() {
 		id := c.PostForm("add")
 		log.Println(id)
 
-		index, err := strconv.Atoi(id)
+		milkmeal_ID, err := strconv.Atoi(id)
 
 		if err != nil { // если не получилось
 			log.Printf("cant transform ind", err)
@@ -96,53 +97,21 @@ func (a *Application) Run() {
 			return
 		}
 
-		a.repo.AddToCart(index)
-
-		childmealsquery := c.Query("childmeal") // Получаем поисковый запрос из URL
-		var FilteredMeals []ds.Meals
-
-		if childmealsquery == "" {
-			FilteredMeals, err = a.repo.GetAllMeals()
+		milkreq_wrk, err := a.repo.GetWorkingMilkRequest()
+		var milkreq_ID int
+		if len(milkreq_wrk) == 0 {
+			new_milkreq, err := a.repo.CreateMilkRequest()
 			if err != nil {
-				log.Println("unable to get all meals")
-				c.Error(err)
-				return
+				log.Println("unable to create milk request")
 			}
+			milkreq_ID = new_milkreq[0].ID
 		} else {
-			FilteredMeals, err = a.repo.GetMealByMealInfo(childmealsquery)
-			if err != nil {
-				log.Println("unable to get meal by info")
-				c.Error(err)
-				return
-			}
+			milkreq_ID = milkreq_wrk[0].ID
 		}
 
-		var cart_id int
+		a.repo.AddToMilkRequest(milkreq_ID, milkmeal_ID)
 
-		wrk_cart, err := a.repo.GetWorkingCart()
-		log.Println(err)
-		if len(wrk_cart) == 0 {
-			new_cart, err := a.repo.CreateCart()
-			cart_id = new_cart[0].ID
-			log.Println(err)
-		} else {
-			cart_id = wrk_cart[0].ID
-		}
-
-		MealsIDs, err := a.repo.GetMealsIDsByCartID(cart_id)
-		if err != nil {
-			log.Println("unable to get MealsIDsByCartID")
-			c.Error(err)
-			return
-		}
-
-		c.HTML(http.StatusOK, "home.html", gin.H{
-			"title":         "Заказы на молочную кухню",
-			"filteredCards": FilteredMeals,
-			"searchQuery":   childmealsquery,
-			"cart_ID":       cart_id,
-			"meals_cnt":     len(MealsIDs),
-		})
+		c.Redirect(301, "/home")
 
 	})
 
@@ -157,7 +126,7 @@ func (a *Application) Run() {
 			return
 		}
 
-		childmeal, err := a.repo.GetCardByID(index)
+		childmeal, err := a.repo.GetMilkRequestByID(index)
 		if err != nil { // если не получилось
 			log.Printf("cant get card by id %v", err)
 			c.Error(err)
@@ -171,17 +140,25 @@ func (a *Application) Run() {
 		})
 	})
 
-	r.GET("/cart/:id", func(c *gin.Context) {
+	r.GET("/milkreq/:id", func(c *gin.Context) {
+
 		id := c.Param("id")
 		index, err := strconv.Atoi(id)
 		if err != nil { // если не получилось
 			log.Printf("cant get cart by id %v", err)
-			c.Error(err)
 			c.String(http.StatusBadRequest, "Invalid ID")
 			return
 		}
 
-		MealsIDs, err := a.repo.GetMealsIDsByCartID(index)
+		milk_req_status, err := a.repo.GetMilkRequestStatusByID(index)
+		if err != nil {
+			log.Printf("cant get cart by id %v", err)
+		}
+		if milk_req_status == 3 {
+			c.Redirect(301, "/home")
+		}
+
+		MealsIDs, err := a.repo.GetMealsIDsByMilkRequestID(index)
 		if err != nil {
 			log.Println("unable to get MealsIDsByCartID")
 			c.Error(err)
@@ -199,14 +176,14 @@ func (a *Application) Run() {
 			log.Println(v.ChildMealID)
 		}
 
-		c.HTML(http.StatusOK, "cart.html", gin.H{
+		c.HTML(http.StatusOK, "milkreq.html", gin.H{
 			"title":     "Корзина",
 			"CartMeals": MealsInCart,
 			"CartID":    index,
 		})
 	})
 
-	r.POST("/cart/:id", func(c *gin.Context) {
+	r.POST("/milkreq/:id", func(c *gin.Context) {
 
 		id := c.Param("id")
 		index, err := strconv.Atoi(id)
@@ -217,31 +194,9 @@ func (a *Application) Run() {
 			return
 		}
 
-		a.repo.DeleteCart(index)
+		a.repo.DeleteMilkRequest(index)
 
-		MealsIDs, err := a.repo.GetMealsIDsByCartID(index)
-		if err != nil {
-			log.Println("unable to get MealsIDsByCartID")
-			c.Error(err)
-			return
-		}
-
-		MealsInCart := []ds.Meals{}
-		for _, v := range MealsIDs {
-			meal_tmp, err := a.repo.GetMealByID(v.ChildMealID)
-			if err != nil {
-				c.Error(err)
-				return
-			}
-			MealsInCart = append(MealsInCart, meal_tmp[0])
-			log.Println(v.ChildMealID)
-		}
-
-		c.HTML(http.StatusOK, "cart.html", gin.H{
-			"title":     "Корзина",
-			"CartMeals": MealsInCart,
-			"CartID":    index,
-		})
+		c.Redirect(301, "/home")
 
 	})
 
