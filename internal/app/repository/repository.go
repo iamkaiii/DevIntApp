@@ -26,12 +26,13 @@ func New(dsn string) (*Repository, error) {
 
 func (r *Repository) GetAllMeals() ([]ds.Meals, error) {
 	var prods []ds.Meals
-	err := r.db.Where("status=true").Find(&prods).Error
+	err := r.db.Where("status=true").Order("id ASC").Find(&prods).Error
 	if err != nil {
 		return nil, err
 	}
 	return prods, nil
 }
+
 func (r *Repository) GetMealByID(mealID int) ([]ds.Meals, error) {
 	var meal []ds.Meals
 	err := r.db.Where("id = ?", mealID).Find(&meal).Error
@@ -50,8 +51,8 @@ func (r *Repository) GetMealByMealInfo(cardText string) ([]ds.Meals, error) {
 	return milkmeal, nil
 }
 
-func (r *Repository) GetWorkingMilkRequest() ([]ds.Milk_Requests, error) {
-	var milkrequest []ds.Milk_Requests
+func (r *Repository) GetWorkingMilkRequest() ([]ds.MilkRequests, error) {
+	var milkrequest []ds.MilkRequests
 	err := r.db.Where("status=0").Find(&milkrequest).Error
 	if err != nil {
 		return nil, err
@@ -59,8 +60,8 @@ func (r *Repository) GetWorkingMilkRequest() ([]ds.Milk_Requests, error) {
 	return milkrequest, nil
 }
 
-func (r *Repository) GetLastMilkRequest() ([]ds.Milk_Requests, error) {
-	var milkrequest []ds.Milk_Requests
+func (r *Repository) GetLastMilkRequest() ([]ds.MilkRequests, error) {
+	var milkrequest []ds.MilkRequests
 	err := r.db.Order("date_create DESC").Find(&milkrequest).Error
 	if err != nil {
 		return nil, err
@@ -68,8 +69,8 @@ func (r *Repository) GetLastMilkRequest() ([]ds.Milk_Requests, error) {
 	return milkrequest, nil
 }
 
-func (r *Repository) CreateMilkRequest() ([]ds.Milk_Requests, error) {
-	newMilkRequest := ds.Milk_Requests{
+func (r *Repository) CreateMilkRequest() ([]ds.MilkRequests, error) {
+	newMilkRequest := ds.MilkRequests{
 		Status:      0,
 		DateCreate:  time.Now(),
 		DateUpdate:  time.Now(),
@@ -96,7 +97,7 @@ func (r *Repository) GetMilkRequestByID(id int) (*ds.Meals, error) { // ?
 }
 
 func (r *Repository) AddToMilkRequest(milreq_ID int, milkmeal_ID int) error {
-	query := "INSERT INTO milk_requests_n_meals (cart_id, child_meal_id) VALUES (?, ?)"
+	query := "INSERT INTO milk_requests_meals (milk_request_id, meal_id) VALUES (?, ?)"
 	err := r.db.Exec(query, milreq_ID, milkmeal_ID)
 	if err != nil {
 		return fmt.Errorf("failed to add to cart: %w", err)
@@ -104,11 +105,11 @@ func (r *Repository) AddToMilkRequest(milreq_ID int, milkmeal_ID int) error {
 	return nil
 }
 
-func (r *Repository) GetMealsIDsByMilkRequestID(cartID int) ([]ds.MilkRequestsNMeals, error) {
-	var MealsIDs []ds.MilkRequestsNMeals
+func (r *Repository) GetMealsIDsByMilkRequestID(cartID int) ([]ds.MilkRequestsMeals, error) {
+	var MealsIDs []ds.MilkRequestsMeals
 
 	err := r.db.
-		Where("milk_requests_n_meals.cart_id = ?", cartID).Order("order_o ASC").Find(&MealsIDs).Error
+		Where("milk_requests_meals.milk_request_id = ?", cartID).Order("amount ASC").Find(&MealsIDs).Error
 
 	if err != nil {
 		return nil, err
@@ -126,7 +127,7 @@ func (r *Repository) DeleteMilkRequest(id int) error {
 }
 
 func (r *Repository) GetMilkRequestStatusByID(id int) (int, error) {
-	milkrequest := &ds.Milk_Requests{}
+	milkrequest := &ds.MilkRequests{}
 	err := r.db.Where("id = ?", id).First(milkrequest).Error
 	if err != nil {
 		return -1, err

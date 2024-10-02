@@ -18,7 +18,7 @@
             <button name="search" type="submit">Поиск</button>
         </form>
         <button name="cart"
-                onclick="window.location.href = 'http://localhost:8080/milkreq/{{.cart_ID}}';"
+                onclick="window.location.href = 'http://localhost:8080/milkreq/{{.milkreq_ID}}';"
                 {{if eq .meals_cnt 0}} disabled {{end}}>
             Заявка <span class="meals-count">{{.meals_cnt}}</span>
         </button>

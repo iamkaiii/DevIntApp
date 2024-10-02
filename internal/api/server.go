@@ -57,7 +57,6 @@ func (a *Application) Run() {
 		var milkreq_len int
 		var milkreq_ID int
 		milkreq_wrk, err := a.repo.GetWorkingMilkRequest()
-		log.Println(milkreq_wrk)
 		if err != nil {
 			log.Println("unable to get working milk request")
 		}
@@ -79,15 +78,13 @@ func (a *Application) Run() {
 			"filteredCards": FilteredMeals,
 			"searchQuery":   childmealsquery,
 			"meals_cnt":     milkreq_len,
-			"cart_ID":       milkreq_ID,
+			"milkreq_ID":    milkreq_ID,
 		})
 	})
 
 	r.POST("/home", func(c *gin.Context) {
 
 		id := c.PostForm("add")
-		log.Println(id)
-
 		milkmeal_ID, err := strconv.Atoi(id)
 
 		if err != nil { // если не получилось
@@ -120,7 +117,7 @@ func (a *Application) Run() {
 		index, err := strconv.Atoi(id)
 
 		if err != nil { // если не получилось
-			log.Printf("cant get card by id %v", err)
+			log.Printf("cant get product by id %v", err)
 			c.Error(err)
 			c.String(http.StatusBadRequest, "Invalid ID")
 			return
@@ -128,7 +125,7 @@ func (a *Application) Run() {
 
 		childmeal, err := a.repo.GetMilkRequestByID(index)
 		if err != nil { // если не получилось
-			log.Printf("cant get card by id %v", err)
+			log.Printf("cant get product by id %v", err)
 			c.Error(err)
 			c.String(http.StatusBadRequest, "Invalid ID")
 			return
@@ -136,7 +133,7 @@ func (a *Application) Run() {
 
 		c.HTML(http.StatusOK, "meal.html", gin.H{
 			"title":     "Main website",
-			"card_data": childmeal,
+			"meal_data": childmeal,
 		})
 	})
 
@@ -145,14 +142,14 @@ func (a *Application) Run() {
 		id := c.Param("id")
 		index, err := strconv.Atoi(id)
 		if err != nil { // если не получилось
-			log.Printf("cant get cart by id %v", err)
+			log.Printf("cant get milkreq by id %v", err)
 			c.String(http.StatusBadRequest, "Invalid ID")
 			return
 		}
 
 		milk_req_status, err := a.repo.GetMilkRequestStatusByID(index)
 		if err != nil {
-			log.Printf("cant get cart by id %v", err)
+			log.Printf("cant get milkreq by id %v", err)
 		}
 		if milk_req_status == 3 {
 			c.Redirect(301, "/home")
@@ -165,21 +162,20 @@ func (a *Application) Run() {
 			return
 		}
 
-		MealsInCart := []ds.Meals{}
+		MealsInMilkReq := []ds.Meals{}
 		for _, v := range MealsIDs {
-			meal_tmp, err := a.repo.GetMealByID(v.ChildMealID)
+			meal_tmp, err := a.repo.GetMealByID(v.MealID)
 			if err != nil {
 				c.Error(err)
 				return
 			}
-			MealsInCart = append(MealsInCart, meal_tmp[0])
-			log.Println(v.ChildMealID)
+			MealsInMilkReq = append(MealsInMilkReq, meal_tmp[0])
 		}
 
 		c.HTML(http.StatusOK, "milkreq.html", gin.H{
-			"title":     "Корзина",
-			"CartMeals": MealsInCart,
-			"CartID":    index,
+			"title":          "Корзина",
+			"MealsInMilkReq": MealsInMilkReq,
+			"MilkReqID":      index,
 		})
 	})
 
@@ -193,9 +189,7 @@ func (a *Application) Run() {
 			c.String(http.StatusBadRequest, "Invalid ID")
 			return
 		}
-
 		a.repo.DeleteMilkRequest(index)
-
 		c.Redirect(301, "/home")
 
 	})

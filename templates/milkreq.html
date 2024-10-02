@@ -15,8 +15,8 @@
   <div class="navigation_line">
     <div class="header_delete_btn">
       <p class="cart-text">Заявка</p>
-      <form action="/milkreq/{{.CartID}}" method="post">
-        <input type="hidden" name="delete" value="{{.CartID}}">
+      <form action="/milkreq/{{.MilkReqID}}" method="post">
+        <input type="hidden" name="delete" value="{{.MilkReqID}}">
         <button class="delete-button" onclick="window.location.href = 'http://localhost:8080/home';">Удалить</button>
       </form>
     </div>
@@ -25,7 +25,7 @@
     <p class="cart-fields">Дата и время доставки: 22.09.24 12:00</p>
   </div>
   <div class="container">
-    {{range .CartMeals}}
+    {{range .MealsInMilkReq}}
     <div class="card">
       <div class="card-image-n-text">
         <div class="card-image">

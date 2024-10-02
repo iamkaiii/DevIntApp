@@ -2,7 +2,7 @@ package ds
 
 import "time"
 
-type Milk_Requests struct {
+type MilkRequests struct {
 	ID               int `gorm:"primaryKey"`
 	Status           int
 	DateCreate       time.Time

@@ -15,11 +15,11 @@
   <div class="container">
     <div class="card">
       <div class="card-image-container">
-        <img src="{{.card_data.ImageUrl}}" class="card-image">
+        <img src="{{.meal_data.ImageUrl}}" class="card-image">
       </div>
       <div class="card-text">
-        <p class="title-in-card">{{.card_data.MealInfo}}{{.card_data.MealWeight}}</p>
-        <p>{{replaceNewline .card_data.MealBrand}} {{ replaceNewline .card_data.MealDetail}}</p>
+        <p class="title-in-card">{{.meal_data.MealInfo}}{{.meal_data.MealWeight}}</p>
+        <p>{{replaceNewline .meal_data.MealBrand}} {{ replaceNewline .meal_data.MealDetail}}</p>
       </div>
     </div>
   </div>
