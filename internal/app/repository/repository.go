@@ -3,6 +3,7 @@ package repository
 import (
 	"DevIntApp/internal/app/ds"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
@@ -33,11 +34,11 @@ func (r *Repository) GetAllMeals() ([]ds.Meals, error) {
 	return prods, nil
 }
 
-func (r *Repository) GetMealByID(mealID string) ([]ds.Meals, error) {
-	var meal []ds.Meals
+func (r *Repository) GetMealByID(mealID string) (ds.Meals, error) {
+	var meal ds.Meals
 	err := r.db.Where("id = ?", mealID).Find(&meal).Error
 	if err != nil {
-		return nil, err
+		return ds.Meals{}, err
 	}
 	return meal, nil
 }
@@ -71,26 +72,31 @@ func (r *Repository) GetLastMilkRequest() (ds.MilkRequests, error) {
 
 func (r *Repository) CreateMilkRequest() (ds.MilkRequests, error) {
 	newMilkRequest := ds.MilkRequests{
-		Status:     0,
-		DateCreate: time.Now(),
-		DateUpdate: time.Now(),
-		CreatorID:  1,
+		Status:      0,
+		DateCreate:  time.Now(),
+		DateUpdate:  time.Now(),
+		CreatorID:   1,
+		ModeratorID: 2,
 	}
 	err := r.db.Create(&newMilkRequest).Error
 	if err != nil {
 		return ds.MilkRequests{}, err
 	}
+	err = r.db.Model(&newMilkRequest).Update("moderator_id", nil).Error
+	if err != nil {
+		return ds.MilkRequests{}, err
+	}
+
 	milkrequest, err := r.GetLastMilkRequest()
 	return milkrequest, err
 }
 
-func (r *Repository) GetMilkRequestByID(id int) (*ds.Meals, error) { // ?
-	milkrequest := &ds.Meals{}
-	err := r.db.Where("id = ?", id).First(milkrequest).Error
+func (r *Repository) GetMilkRequestByID(id int) (ds.MilkRequests, error) { // ?
+	milkrequest := ds.MilkRequests{}
+	err := r.db.Where("id = ?", id).First(&milkrequest).Error
 	if err != nil {
-		return nil, err
+		return ds.MilkRequests{}, err
 	}
-
 	return milkrequest, nil
 }
 
@@ -107,17 +113,18 @@ func (r *Repository) AddToMilkRequest(milreq_ID int, milkmeal_ID int) error {
 	return nil
 }
 
-func (r *Repository) GetMealsIDsByMilkRequestID(cartID int) ([]ds.MilkRequestsMeals, error) {
-	var MealsIDs []ds.MilkRequestsMeals
-
+func (r *Repository) GetMealsIDsByMilkRequestID(milk_request_ID int) ([]int, error) {
+	var MealsIds []int
 	err := r.db.
-		Where("milk_requests_meals.milk_request_id = ?", cartID).Order("amount ASC").Find(&MealsIDs).Error
+		Model(&ds.MilkRequestsMeals{}).
+		Where("milk_request_id = ?", milk_request_ID).
+		Pluck("meal_id", &MealsIds).
+		Error
 
 	if err != nil {
 		return nil, err
 	}
-
-	return MealsIDs, nil
+	return MealsIds, nil
 }
 
 func (r *Repository) DeleteMilkRequest(id int) error {
@@ -159,10 +166,19 @@ func (r *Repository) DeleteMealByID(id string) error {
 
 func (r *Repository) UpdateMealByID(id string, meal ds.Meals) error {
 	var existingMeal ds.Meals
-	if err := r.db.First(&existingMeal, id).Error; err != nil {
+	if err := r.db.First(&existingMeal, "ID = ?", id).Error; err != nil {
 		return err
 	}
-	if err := r.db.Model(&existingMeal).Updates(meal).Error; err != nil {
+
+	existingMeal.MealInfo = meal.MealInfo
+	existingMeal.MealWeight = meal.MealWeight
+	existingMeal.MealBrand = meal.MealBrand
+	existingMeal.MealDetail = meal.MealDetail
+	existingMeal.ImageUrl = meal.ImageUrl
+	existingMeal.Status = meal.Status
+
+	err := r.db.Save(&existingMeal).Error
+	if err != nil {
 		return err
 	}
 	return nil
@@ -184,4 +200,18 @@ func (r *Repository) ChangePicByID(id string, image string) error {
 		return err
 	}
 	return nil
+}
+
+func (r *Repository) GetAllMilkRequestsWithFilters(status int, having_status bool) ([]ds.MilkRequests, error) {
+	var milkRequests []ds.MilkRequests
+	log.Println(status, having_status)
+	db := r.db // Инициализируем db без фильтра по дате
+	if having_status {
+		db = db.Where("Status = ?", status) // Фильтр по статусу
+	}
+	err := db.Find(&milkRequests).Error // Выборка записей из базы данных
+	if err != nil {
+		return nil, fmt.Errorf("failed to get milk requests: %w", err)
+	}
+	return milkRequests, nil
 }

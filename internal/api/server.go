@@ -28,8 +28,8 @@ func (a *Application) Run() {
 	r.POST("/api/meal_to_milkreq/:ID", a.AddMealToMilkReq)
 	r.POST("api/meal/change_pic/:ID", a.ChangePic)
 
-	//r.GET("/api/milk_requests", a.GetAllMilkRequests)
-	//r.GET("/api/milk_request/:ID", a.GetMilkRequest)
+	r.GET("/api/milk_requests", a.GetAllMilkRequestsWithParams)
+	r.GET("/api/milk_request/:ID", a.GetMilkRequest)
 	//r.PUT("/api/milk_request/:ID", a.UpdateAdditFieldsMilkReq)
 	//r.DELETE("/api/milk_request/:ID", a.DeleteMilkRequest)
 	//r.PUT("/api/milk_request_finish/:ID", a.FinishMilkRequest)
