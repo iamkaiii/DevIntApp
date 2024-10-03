@@ -57,7 +57,7 @@ type UpdateOrderMilkReqMealsRequest struct {
 	OrderO int `json:"order_o"`
 }
 
-type UpdateAdditionalFieldsMilkReqRequest struct {
+type UpdateFieldsMilkReqRequest struct {
 	ID           string    `uri:"milk_request" json:"id"`
 	Name         string    `json:"recipient_name"`
 	Surname      string    `json:"recipient_surname"`
@@ -66,13 +66,19 @@ type UpdateAdditionalFieldsMilkReqRequest struct {
 }
 
 type DeleteMilkRequestRequest struct {
-	ID int `json:"id"`
+	ID int
+}
+
+type FormMilkRequestRequest struct {
+	ID int
+}
+
+type FinishMilkRequestRequest struct {
+	ID           int
+	Status       int       `json:"status"`
+	DeliveryDate time.Time `json:"delivery_date"`
 }
 
 type CreateUserRequest struct {
 	ds.Users
-}
-
-type FinishMilkRequest struct {
-	ID int `json:"id"`
 }

@@ -30,9 +30,10 @@ func (a *Application) Run() {
 
 	r.GET("/api/milk_requests", a.GetAllMilkRequestsWithParams)
 	r.GET("/api/milk_request/:ID", a.GetMilkRequest)
-	//r.PUT("/api/milk_request/:ID", a.UpdateAdditFieldsMilkReq)
-	//r.DELETE("/api/milk_request/:ID", a.DeleteMilkRequest)
-	//r.PUT("/api/milk_request_finish/:ID", a.FinishMilkRequest)
+	r.PUT("/api/milk_request/:ID", a.UpdateFieldsMilkReq)
+	r.DELETE("/api/milk_request/:ID", a.DeleteMilkRequest)
+	r.PUT("/api/milk_request/form/:ID", a.FormMilkRequest)
+	r.PUT("/api/milk_request/finish/:ID", a.FinishMilkRequest)
 
 	//r.DELETE("/api/milk_req_meals", a.DeleteMealFromMilkReq)
 	//r.PUT("/api/milk_req_meals", a.UpdateOrderMilkReqMeal)

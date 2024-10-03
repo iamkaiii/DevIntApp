@@ -30,6 +30,7 @@ type GetAllMilkRequestsResponse struct {
 
 type GetMilkRequestResponse struct {
 	MilkRequest      ds.MilkRequests `json:"milk_requests"`
+	Count            int             `json:"count"`
 	MilkRequestMeals []ds.Meals      `json:"milk_request_meals"`
 }
 

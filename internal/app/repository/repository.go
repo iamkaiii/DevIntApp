@@ -2,6 +2,7 @@ package repository
 
 import (
 	"DevIntApp/internal/app/ds"
+	"DevIntApp/internal/app/schemas"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
@@ -71,22 +72,17 @@ func (r *Repository) GetLastMilkRequest() (ds.MilkRequests, error) {
 }
 
 func (r *Repository) CreateMilkRequest() (ds.MilkRequests, error) {
+	creator_id := 1
 	newMilkRequest := ds.MilkRequests{
-		Status:      0,
-		DateCreate:  time.Now(),
-		DateUpdate:  time.Now(),
-		CreatorID:   1,
-		ModeratorID: 2,
+		Status:     0,
+		DateCreate: time.Now(),
+		DateUpdate: time.Now(),
+		CreatorID:  &creator_id,
 	}
 	err := r.db.Create(&newMilkRequest).Error
 	if err != nil {
 		return ds.MilkRequests{}, err
 	}
-	err = r.db.Model(&newMilkRequest).Update("moderator_id", nil).Error
-	if err != nil {
-		return ds.MilkRequests{}, err
-	}
-
 	milkrequest, err := r.GetLastMilkRequest()
 	return milkrequest, err
 }
@@ -128,8 +124,12 @@ func (r *Repository) GetMealsIDsByMilkRequestID(milk_request_ID int) ([]int, err
 }
 
 func (r *Repository) DeleteMilkRequest(id int) error {
-	err := r.db.Exec("UPDATE milk_requests SET status = ? WHERE id = ?", 3, id).Error
-	if err != nil {
+	var milkRequest ds.MilkRequests
+	if err := r.db.First(&milkRequest, "id = ?", id).Error; err != nil {
+		return err
+	}
+	milkRequest.Status = 3 // Устанавливаем статус удаления
+	if err := r.db.Save(&milkRequest).Error; err != nil {
 		return err
 	}
 	return nil
@@ -214,4 +214,64 @@ func (r *Repository) GetAllMilkRequestsWithFilters(status int, having_status boo
 		return nil, fmt.Errorf("failed to get milk requests: %w", err)
 	}
 	return milkRequests, nil
+}
+
+func (r *Repository) UpdateFieldsMilkReq(request schemas.UpdateFieldsMilkReqRequest) error {
+	var milkRequest ds.MilkRequests
+	// Загрузка записи из базы данных по ID
+	if err := r.db.First(&milkRequest, "id = ?", request.ID).Error; err != nil {
+		return err
+	}
+	if request.Name != "" {
+		milkRequest.RecipientName = request.Name
+	}
+	if request.Surname != "" {
+		milkRequest.RecipientSurname = request.Surname
+	}
+	if request.Address != "" {
+		milkRequest.Address = request.Address
+	}
+	if !request.DeliveryDate.IsZero() {
+		milkRequest.DeliveryDate = request.DeliveryDate
+	}
+	if err := r.db.Save(&milkRequest).Error; err != nil {
+		return err
+	}
+	return nil // Возвращаем nil, если все прошло успешно
+}
+
+func (r *Repository) FormMilkRequest(id string) error {
+	var milkRequest ds.MilkRequests
+	if err := r.db.First(&milkRequest, "id = ?", id).Error; err != nil {
+		return err
+	}
+	if milkRequest.CreatorID == nil {
+		err := fmt.Errorf("Unable to finish request. Probably some fields are empty")
+		return err
+	}
+	milkRequest.Status = 1
+	if err := r.db.Save(&milkRequest).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) FinishMilkRequest(id string, status int, delivery_date time.Time) error {
+	var milkRequest ds.MilkRequests
+	if err := r.db.First(&milkRequest, "id = ?", id).Error; err != nil {
+		return err
+	}
+	if milkRequest.CreatorID == nil {
+		err := fmt.Errorf("Unable to finish request. Probably some fields are empty")
+		return err
+	}
+	mod_id := 2
+	milkRequest.Status = status
+	milkRequest.DeliveryDate = delivery_date
+	milkRequest.DateFinish = time.Now()
+	milkRequest.ModeratorID = &mod_id
+	if err := r.db.Save(&milkRequest).Error; err != nil {
+		return err
+	}
+	return nil
 }
