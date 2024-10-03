@@ -115,7 +115,7 @@ func (a *Application) FormMilkRequest(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, "Milk Request was Finished")
+	c.JSON(http.StatusOK, "Milk Request was Formed")
 }
 
 func (a *Application) FinishMilkRequest(c *gin.Context) {

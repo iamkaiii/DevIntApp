@@ -275,3 +275,33 @@ func (r *Repository) FinishMilkRequest(id string, status int, delivery_date time
 	}
 	return nil
 }
+
+func (r *Repository) DeleteMealFromMilkRequest(id string, meal_id int) error {
+	var milkRequestMeal ds.MilkRequestsMeals
+	if err := r.db.Where("milk_request_id = ? AND meal_id = ?", id, meal_id).First(&milkRequestMeal).Error; err != nil {
+		return err
+	}
+	if err := r.db.Delete(&milkRequestMeal).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) UpdateAmountMilkReqMeal(id string, meal_id int, amount int) error {
+	var milkRequestMeal ds.MilkRequestsMeals
+	if err := r.db.Where("milk_request_id = ? AND meal_id = ?", id, meal_id).First(&milkRequestMeal).Error; err != nil {
+		return err
+	}
+	milkRequestMeal.Amount = amount
+	if err := r.db.Save(&milkRequestMeal).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) CreateUser(user ds.Users) error {
+	if err := r.db.Create(&user).Error; err != nil {
+		return err
+	}
+	return nil
+}

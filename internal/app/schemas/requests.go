@@ -46,11 +46,6 @@ type GetMilkRequestRequest struct {
 	ID string
 }
 
-type DeleteMealFromMilkReqRequest struct {
-	ID     int `json:"milk_req_id"`
-	MealID int `json:"meal_id"`
-}
-
 type UpdateOrderMilkReqMealsRequest struct {
 	ID     int `json:"milk_req_id"`
 	MealID int `json:"meal_id"`
@@ -66,17 +61,27 @@ type UpdateFieldsMilkReqRequest struct {
 }
 
 type DeleteMilkRequestRequest struct {
-	ID int
+	ID string
 }
 
 type FormMilkRequestRequest struct {
-	ID int
+	ID string
 }
 
 type FinishMilkRequestRequest struct {
-	ID           int
+	ID           string
 	Status       int       `json:"status"`
 	DeliveryDate time.Time `json:"delivery_date"`
+}
+
+type DeleteMealFromMilkReqRequest struct {
+	ID     string
+	MealID int `json:"meal_id"`
+}
+type UpdateAmountMilkReqMealRequest struct {
+	ID     string
+	MealID int `json:"meal_id"`
+	Amount int `json:"amount"`
 }
 
 type CreateUserRequest struct {

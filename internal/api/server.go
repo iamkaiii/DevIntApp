@@ -35,10 +35,10 @@ func (a *Application) Run() {
 	r.PUT("/api/milk_request/form/:ID", a.FormMilkRequest)
 	r.PUT("/api/milk_request/finish/:ID", a.FinishMilkRequest)
 
-	//r.DELETE("/api/milk_req_meals", a.DeleteMealFromMilkReq)
-	//r.PUT("/api/milk_req_meals", a.UpdateOrderMilkReqMeal)
+	r.DELETE("/api/milk_req_meals/:ID", a.DeleteMealFromMilkReq)
+	r.PUT("/api/milk_req_meals/:ID", a.UpdateAmountMilkReqMeal)
 
-	//r.POST("/api/user_reg", a.CreateUser)
+	r.POST("/api/user_reg", a.CreateUser)
 
 	r.Static("/css", "./resources")
 
