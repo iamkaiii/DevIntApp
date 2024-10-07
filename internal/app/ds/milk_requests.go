@@ -3,7 +3,7 @@ package ds
 import "time"
 
 type MilkRequests struct {
-	ID               int       `gorm:"primaryKey" json:"id"`
+	ID               int       `gorm:"primaryKey;autoIncrement" json:"id"`
 	Status           int       `json:"status"`
 	DateCreate       time.Time `json:"date_create"`
 	DateUpdate       time.Time `json:"date_update"`

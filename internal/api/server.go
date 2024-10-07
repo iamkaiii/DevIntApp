@@ -38,7 +38,7 @@ func (a *Application) Run() {
 	r.DELETE("/api/milk_req_meals/:ID", a.DeleteMealFromMilkReq)
 	r.PUT("/api/milk_req_meals/:ID", a.UpdateAmountMilkReqMeal)
 
-	r.POST("/api/user_reg", a.CreateUser)
+	r.POST("/api/registration", a.CreateUser)
 
 	r.Static("/css", "./resources")
 
