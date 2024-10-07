@@ -49,8 +49,7 @@ func (a *Application) Run() {
 			FilteredMeals, err = a.repo.GetMealByMealInfo(childmealsquery)
 			if err != nil {
 				log.Println("unable to get meal by info")
-				c.Error(err)
-				return
+				FilteredMeals = []ds.Meals{}
 			}
 		}
 

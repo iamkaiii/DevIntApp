@@ -70,13 +70,14 @@ func (r *Repository) GetLastMilkRequest() ([]ds.MilkRequests, error) {
 }
 
 func (r *Repository) CreateMilkRequest() ([]ds.MilkRequests, error) {
+	var CreatorID, ModeratorID = 1, 2
 	newMilkRequest := ds.MilkRequests{
 		Status:      0,
 		DateCreate:  time.Now(),
 		DateUpdate:  time.Now(),
 		DateFinish:  time.Now(),
-		CreatorID:   1,
-		ModeratorID: 2,
+		CreatorID:   &CreatorID,
+		ModeratorID: &ModeratorID,
 	}
 	err := r.db.Create(&newMilkRequest).Error
 	if err != nil {
