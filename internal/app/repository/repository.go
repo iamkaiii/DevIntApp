@@ -3,12 +3,15 @@ package repository
 import (
 	"DevIntApp/internal/app/ds"
 	"DevIntApp/internal/app/schemas"
+	token2 "DevIntApp/internal/token"
+	"errors"
 	"fmt"
 	"github.com/go-redis/redis"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -313,11 +316,43 @@ func (r *Repository) UpdateAmountMilkReqMeal(id string, meal_id int, amount int)
 func (r *Repository) RegisterUser(user ds.Users) (error, int) {
 	err := r.db.First(&user, "login = ?", user.Login).Error
 	if err == nil {
-		log.Println("user was found")
 		return err, 0
 	}
 	if err = r.db.Create(&user).Error; err != nil {
 		return err, 1
 	}
 	return nil, 2
+}
+
+func (r *Repository) LoginUser(user ds.Users) (error, string) {
+	var user_in_db ds.Users
+	err := r.db.First(&user_in_db, "login = ?", user.Login).Error
+	if err != nil {
+		return errors.New("Такого пользователя нет в бд"), ""
+	}
+	if user.Password != user_in_db.Password {
+		return errors.New("Пароли не совпадают"), ""
+	}
+
+	token, err := token2.GenerateJWTToken(user_in_db)
+	if err != nil {
+		return err, ""
+	}
+
+	err = r.SaveJWTToken(user_in_db.ID, token)
+	if err != nil {
+		return err, ""
+	}
+	return nil, token
+
+}
+
+func (r *Repository) SaveJWTToken(userID int, token string) error {
+	exp := 1 * time.Hour
+	userID_str := strconv.Itoa(userID)
+	err := r.rd.Set(userID_str, token, exp).Err()
+	if err != nil {
+		return err
+	}
+	return nil
 }

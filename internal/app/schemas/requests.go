@@ -89,4 +89,5 @@ type RegisterUserRequest struct {
 }
 
 type LoginUserRequest struct {
+	ds.Users
 }

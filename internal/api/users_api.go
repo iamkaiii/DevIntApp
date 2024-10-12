@@ -3,6 +3,7 @@ package api
 import (
 	"DevIntApp/internal/app/schemas"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -37,4 +38,19 @@ func (a *Application) RegisterUser(c *gin.Context) {
 
 func (a *Application) LoginUser(c *gin.Context) {
 	var request schemas.LoginUserRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if request.Users.Login == "" || request.Users.Password == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Login or Password can not be empty"})
+		return
+	}
+	err, token := a.repo.LoginUser(request.Users)
+	log.Println(err)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
