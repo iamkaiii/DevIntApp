@@ -2,11 +2,13 @@ package api
 
 import (
 	"DevIntApp/internal/app/config"
+	"DevIntApp/internal/app/ds"
 	"DevIntApp/internal/app/dsn"
 	"DevIntApp/internal/app/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
 	"log"
+	"net/http"
 )
 
 type Application struct {
@@ -44,6 +46,10 @@ func (a *Application) Run() {
 
 	r.POST("/api/register_user", a.RegisterUser)
 	r.POST("/api/login_user", a.LoginUser)
+	r.GET("/protected", a.RoleMiddleware(ds.Users{IsModerator: true}, ds.Users{IsModerator: false}), func(c *gin.Context) {
+		userID := c.MustGet("userID").(float64)
+		c.JSON(http.StatusOK, gin.H{"message": "auth as moder", "userID": userID})
+	})
 
 	r.Static("/css", "./resources")
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
@@ -65,11 +71,3 @@ func New() (*Application, error) {
 
 	return &app, nil
 }
-
-// Ping godoc
-// @Summary      Show hello text
-// @Description  Show hello text
-// @Tags         Tests
-// @Produce      json
-// @Success      200  {object}  pingResp
-// @Router       /ping/{name} [get]
