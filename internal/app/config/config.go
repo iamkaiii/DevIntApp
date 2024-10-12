@@ -1,16 +1,16 @@
 package config
 
 import (
-	"os"
-
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"os"
 )
 
 // Config Структура конфигурации;
 // Содержит все конфигурационные данные о сервисе;
 // автоподгружается при изменении исходного файла
+
 type Config struct {
 	ServiceHost string
 	ServicePort int

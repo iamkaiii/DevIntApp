@@ -4,9 +4,11 @@ import (
 	"DevIntApp/internal/app/ds"
 	"DevIntApp/internal/app/schemas"
 	"fmt"
+	"github.com/go-redis/redis"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"os"
 	"time"
 )
 
@@ -14,6 +16,7 @@ import (
 
 type Repository struct {
 	db *gorm.DB
+	rd *redis.Client
 }
 
 func New(dsn string) (*Repository, error) {
@@ -21,8 +24,16 @@ func New(dsn string) (*Repository, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	redis_client := redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("REDIS_ENDPOINT"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       0,
+	})
+
 	return &Repository{
 		db: db,
+		rd: redis_client,
 	}, nil
 }
 
@@ -299,9 +310,14 @@ func (r *Repository) UpdateAmountMilkReqMeal(id string, meal_id int, amount int)
 	return nil
 }
 
-func (r *Repository) CreateUser(user ds.Users) error {
-	if err := r.db.Create(&user).Error; err != nil {
-		return err
+func (r *Repository) RegisterUser(user ds.Users) (error, int) {
+	err := r.db.First(&user, "login = ?", user.Login).Error
+	if err == nil {
+		log.Println("user was found")
+		return err, 0
 	}
-	return nil
+	if err = r.db.Create(&user).Error; err != nil {
+		return err, 1
+	}
+	return nil, 2
 }

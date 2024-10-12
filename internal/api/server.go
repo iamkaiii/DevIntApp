@@ -38,12 +38,15 @@ func (a *Application) Run() {
 	r.DELETE("/api/milk_req_meals/:ID", a.DeleteMealFromMilkReq)
 	r.PUT("/api/milk_req_meals/:ID", a.UpdateAmountMilkReqMeal)
 
-	r.POST("/api/registration", a.CreateUser)
+	//r.POST("/api/registration", a.CreateUser)
+
+	///ЛАБА 4 ПО РИПУ///
+
+	r.POST("/api/register_user", a.RegisterUser)
+	r.POST("/api/login_user", a.LoginUser)
 
 	r.Static("/css", "./resources")
-
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-
 	log.Println("Server down")
 }
 
@@ -62,3 +65,11 @@ func New() (*Application, error) {
 
 	return &app, nil
 }
+
+// Ping godoc
+// @Summary      Show hello text
+// @Description  Show hello text
+// @Tags         Tests
+// @Produce      json
+// @Success      200  {object}  pingResp
+// @Router       /ping/{name} [get]

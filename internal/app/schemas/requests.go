@@ -84,6 +84,9 @@ type UpdateAmountMilkReqMealRequest struct {
 	Amount int `json:"amount"`
 }
 
-type CreateUserRequest struct {
+type RegisterUserRequest struct {
 	ds.Users
+}
+
+type LoginUserRequest struct {
 }
