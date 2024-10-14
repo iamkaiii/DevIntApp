@@ -22,45 +22,45 @@ func (a *Application) GetAllMilkRequestsWithParams(c *gin.Context) {
 	if request.ToDate.IsZero() {
 		request.ToDate = time.Now()
 	}
-	milk_requests, err := a.repo.GetAllMilkRequestsWithFilters(request.Status, request.HavingStatus)
+	milkRequests, err := a.repo.GetAllMilkRequestsWithFilters(request.Status, request.HavingStatus)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	response := schemas.GetAllMilkRequestsWithParamsResponse{MilkRequests: milk_requests}
+	response := schemas.GetAllMilkRequestsWithParamsResponse{MilkRequests: milkRequests}
 	c.JSON(http.StatusOK, response)
 }
 
 func (a *Application) GetMilkRequest(c *gin.Context) {
 	var request schemas.GetMilkRequestRequest
 	request.ID = c.Param("ID")
-	id_int, err := strconv.Atoi(request.ID)
+	IntID, err := strconv.Atoi(request.ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		log.Println("error was there")
 		return
 	}
-	milk_request, err := a.repo.GetMilkRequestByID(id_int)
+	MilkRequest, err := a.repo.GetMilkRequestByID(IntID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	meals_ids_in_request, err := a.repo.GetMealsIDsByMilkRequestID(milk_request.ID)
+	MealsIDsInRequest, err := a.repo.GetMealsIDsByMilkRequestID(MilkRequest.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	meals := make([]ds.Meals, 0, len(meals_ids_in_request))
-	for _, v := range meals_ids_in_request {
-		v_string := strconv.Itoa(v)
-		meal_to_append, err := a.repo.GetMealByID(v_string)
+	meals := make([]ds.Meals, 0, len(MealsIDsInRequest))
+	for _, v := range MealsIDsInRequest {
+		vString := strconv.Itoa(v)
+		MealsToAppend, err := a.repo.GetMealByID(vString)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		meals = append(meals, meal_to_append)
+		meals = append(meals, MealsToAppend)
 	}
-	response := schemas.GetMilkRequestResponse{MilkRequest: milk_request, Count: len(meals_ids_in_request), MilkRequestMeals: meals}
+	response := schemas.GetMilkRequestResponse{MilkRequest: MilkRequest, Count: len(MealsIDsInRequest), MilkRequestMeals: meals}
 	c.JSON(http.StatusOK, response)
 }
 

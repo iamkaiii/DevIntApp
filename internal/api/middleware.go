@@ -1,7 +1,6 @@
 package api
 
 import (
-	"DevIntApp/internal/app/ds"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"log"
@@ -12,11 +11,11 @@ import (
 
 const prefix = "Bearer"
 
-func (a *Application) RoleMiddleware(users ...ds.Users) gin.HandlerFunc {
+func (a *Application) RoleMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := a.extractTokenFromHandler(c.Request)
 		if tokenString == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized1"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
 			return
 
 		}
@@ -24,47 +23,36 @@ func (a *Application) RoleMiddleware(users ...ds.Users) gin.HandlerFunc {
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("JWT_KEY")), nil
 		})
+
 		if err != nil || !token.Valid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized2"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
 			return
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		log.Println(claims)
 
-		userIDnew, ok := claims["userID"].(float64)
-		log.Println(userIDnew, ok)
+		userID, ok := claims["userID"].(float64)
 
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized4"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
 			return
 		}
-		c.Set("userID", float64(userIDnew))
+		c.Set("userID", float64(userID))
 
-		user_role, ok := claims["isModerator"].(bool)
-		log.Println(user_role, ok)
+		userRole, ok := claims["isModerator"].(bool)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized5"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
 			return
 		}
 
-		if !a.isRoleAllowed(user_role, users) {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized6"})
+		if userRole != true { //проверка, является ли модератором
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Отказано в доступе"})
 			return
 		}
 		c.Next()
 
 	}
-}
-
-func (a *Application) isRoleAllowed(userRole bool, users []ds.Users) bool {
-	for _, v := range users {
-		log.Println(v, userRole)
-		if v.IsModerator == userRole {
-			return true
-		}
-	}
-	return false
 }
 
 func (a *Application) extractTokenFromHandler(req *http.Request) string {

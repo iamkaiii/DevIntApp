@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "DevIntApp/docs"
 	"DevIntApp/internal/api"
 	"log"
 )

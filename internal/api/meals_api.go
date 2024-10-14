@@ -19,21 +19,33 @@ func (a *Application) GetAllMeals(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	meals_cnt := len(meals)
-	wrk_milk_req, err := a.repo.GetWorkingMilkRequest()
+	mealsCnt := len(meals)
+	activeMilkRequest, err := a.repo.GetWorkingMilkRequest()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	var id int
-	if len(wrk_milk_req) == 0 {
-		id = 0
+	if len(activeMilkRequest) == 0 {
+		c.JSON(http.StatusOK, gin.H{"Count": mealsCnt, "Meals": meals})
+		return
 	} else {
-		id = wrk_milk_req[0].ID
+		id = activeMilkRequest[0].ID
 	}
-	response := schemas.GetAllMealsResponse{ID: id, Count: meals_cnt, Meals: meals}
+	response := schemas.GetAllMealsResponse{ID: id, Count: mealsCnt, Meals: meals}
 	c.JSON(http.StatusOK, response)
+	return
 }
+
+// @Summary Get a meal
+// @Description Returns a meal by ID.
+// @Tags meals
+// @Accept json
+// @Produce json
+// @Param  ID    path  string true "Meal ID"
+// @Success 200 {object} schemas.GetMealResponse "Meal retrieved successfully"
+// @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
+// @Failure 500 {object} schemas.ResponseMessage "Internal server error"
 
 func (a *Application) GetMeal(c *gin.Context) {
 	var request schemas.GetMealRequest
@@ -106,18 +118,18 @@ func (a *Application) AddMealToMilkReq(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	new_milk_request, err := a.repo.CreateMilkRequest()
+	newMilkRequest, err := a.repo.CreateMilkRequest()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	new_milk_request_id := new_milk_request.ID
-	meal_id, err := strconv.Atoi(request.ID)
+	newMilkRequestID := newMilkRequest.ID
+	mealID, err := strconv.Atoi(request.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	err = a.repo.AddToMilkRequest(new_milk_request_id, meal_id)
+	err = a.repo.AddToMilkRequest(newMilkRequestID, mealID)
 	log.Println(err)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

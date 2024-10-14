@@ -7,6 +7,16 @@ import (
 	"net/http"
 )
 
+// @Summary Register a new user
+// @Description Register a new user with provided JSON data
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param body schemas.RegisterUserRequest true "User registration data"
+// @Success 200 {object} schemas.ResponseMessage "User created successfully"
+// @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
+// @Failure 500 {object} schemas.ResponseMessage "Internal server error"
+
 func (a *Application) RegisterUser(c *gin.Context) {
 	var request schemas.RegisterUserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -35,6 +45,16 @@ func (a *Application) RegisterUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User created successfully!"})
 
 }
+
+// @Summary Login a user
+// @Description Authenticates a user and returns a JWT token.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param body schemas.LoginUserRequest true "User login data"
+// @Success 200 {object} schemas.TokenResponse "User logged in successfully"
+// @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
+// @Failure 500 {object} schemas.ResponseMessage "Internal server error"
 
 func (a *Application) LoginUser(c *gin.Context) {
 	var request schemas.LoginUserRequest

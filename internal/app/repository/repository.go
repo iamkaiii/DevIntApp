@@ -28,7 +28,7 @@ func New(dsn string) (*Repository, error) {
 		return nil, err
 	}
 
-	redis_client := redis.NewClient(&redis.Options{
+	redisClient := redis.NewClient(&redis.Options{
 		Addr:     os.Getenv("REDIS_ENDPOINT"),
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0,
@@ -36,7 +36,7 @@ func New(dsn string) (*Repository, error) {
 
 	return &Repository{
 		db: db,
-		rd: redis_client,
+		rd: redisClient,
 	}, nil
 }
 
@@ -58,22 +58,22 @@ func (r *Repository) GetMealByID(mealID string) (ds.Meals, error) {
 	return meal, nil
 }
 
-func (r *Repository) GetMealByMealInfo(cardText string) ([]ds.Meals, error) {
-	var milkmeal []ds.Meals
-	err := r.db.Where("meal_info LIKE ?", "%"+cardText+"%").First(&milkmeal).Error
+func (r *Repository) GetMealByMealInfo(info string) ([]ds.Meals, error) {
+	var milkMeal []ds.Meals
+	err := r.db.Where("meal_info LIKE ?", "%"+info+"%").First(&milkMeal).Error
 	if err != nil {
 		return nil, err
 	}
-	return milkmeal, nil
+	return milkMeal, nil
 }
 
 func (r *Repository) GetWorkingMilkRequest() ([]ds.MilkRequests, error) {
-	var milkrequest []ds.MilkRequests
-	err := r.db.Where("status=0").Find(&milkrequest).Error
+	var milkRequest []ds.MilkRequests
+	err := r.db.Where("status=0").Find(&milkRequest).Error
 	if err != nil {
 		return nil, err
 	}
-	return milkrequest, nil
+	return milkRequest, nil
 }
 
 func (r *Repository) GetLastMilkRequest() (ds.MilkRequests, error) {
@@ -86,12 +86,12 @@ func (r *Repository) GetLastMilkRequest() (ds.MilkRequests, error) {
 }
 
 func (r *Repository) CreateMilkRequest() (ds.MilkRequests, error) {
-	creator_id := 1
+	creatorID := 1
 	newMilkRequest := ds.MilkRequests{
 		Status:     0,
 		DateCreate: time.Now(),
 		DateUpdate: time.Now(),
-		CreatorID:  &creator_id,
+		CreatorID:  &creatorID,
 	}
 	err := r.db.Create(&newMilkRequest).Error
 	if err != nil {
@@ -110,10 +110,10 @@ func (r *Repository) GetMilkRequestByID(id int) (ds.MilkRequests, error) { // ?
 	return milkrequest, nil
 }
 
-func (r *Repository) AddToMilkRequest(milreq_ID int, milkmeal_ID int) error {
+func (r *Repository) AddToMilkRequest(milkRequestID int, milkMealID int) error {
 	milkReqMeal := ds.MilkRequestsMeals{
-		MilkRequestID: milreq_ID,
-		MealID:        milkmeal_ID,
+		MilkRequestID: milkRequestID,
+		MealID:        milkMealID,
 	}
 	err := r.db.Create(&milkReqMeal).Error
 	if err != nil {
@@ -123,11 +123,11 @@ func (r *Repository) AddToMilkRequest(milreq_ID int, milkmeal_ID int) error {
 	return nil
 }
 
-func (r *Repository) GetMealsIDsByMilkRequestID(milk_request_ID int) ([]int, error) {
+func (r *Repository) GetMealsIDsByMilkRequestID(milkRequestID int) ([]int, error) {
 	var MealsIds []int
 	err := r.db.
 		Model(&ds.MilkRequestsMeals{}).
-		Where("milk_request_id = ?", milk_request_ID).
+		Where("milk_request_id = ?", milkRequestID).
 		Pluck("meal_id", &MealsIds).
 		Error
 
@@ -270,7 +270,7 @@ func (r *Repository) FormMilkRequest(id string) error {
 	return nil
 }
 
-func (r *Repository) FinishMilkRequest(id string, status int, delivery_date time.Time) error {
+func (r *Repository) FinishMilkRequest(id string, status int, deliveryDate time.Time) error {
 	var milkRequest ds.MilkRequests
 	if err := r.db.First(&milkRequest, "id = ?", id).Error; err != nil {
 		return err
@@ -279,20 +279,20 @@ func (r *Repository) FinishMilkRequest(id string, status int, delivery_date time
 		err := fmt.Errorf("Unable to finish request. Probably some fields are empty")
 		return err
 	}
-	mod_id := 2
+	moderatorID := 2
 	milkRequest.Status = status
-	milkRequest.DeliveryDate = delivery_date
+	milkRequest.DeliveryDate = deliveryDate
 	milkRequest.DateFinish = time.Now()
-	milkRequest.ModeratorID = &mod_id
+	milkRequest.ModeratorID = &moderatorID
 	if err := r.db.Save(&milkRequest).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) DeleteMealFromMilkRequest(id string, meal_id int) error {
+func (r *Repository) DeleteMealFromMilkRequest(id string, mealID int) error {
 	var milkRequestMeal ds.MilkRequestsMeals
-	if err := r.db.Where("milk_request_id = ? AND meal_id = ?", id, meal_id).First(&milkRequestMeal).Error; err != nil {
+	if err := r.db.Where("milk_request_id = ? AND meal_id = ?", id, mealID).First(&milkRequestMeal).Error; err != nil {
 		return err
 	}
 	if err := r.db.Delete(&milkRequestMeal).Error; err != nil {
@@ -301,9 +301,9 @@ func (r *Repository) DeleteMealFromMilkRequest(id string, meal_id int) error {
 	return nil
 }
 
-func (r *Repository) UpdateAmountMilkReqMeal(id string, meal_id int, amount int) error {
+func (r *Repository) UpdateAmountMilkReqMeal(id string, mealID int, amount int) error {
 	var milkRequestMeal ds.MilkRequestsMeals
-	if err := r.db.Where("milk_request_id = ? AND meal_id = ?", id, meal_id).First(&milkRequestMeal).Error; err != nil {
+	if err := r.db.Where("milk_request_id = ? AND meal_id = ?", id, mealID).First(&milkRequestMeal).Error; err != nil {
 		return err
 	}
 	milkRequestMeal.Amount = amount
@@ -316,19 +316,19 @@ func (r *Repository) UpdateAmountMilkReqMeal(id string, meal_id int, amount int)
 func (r *Repository) RegisterUser(user ds.Users) (error, int) {
 	err := r.db.First(&user, "login = ?", user.Login).Error
 	if err == nil {
-		return err, 0
+		return err, 0 //пользователь с таким логином уже есть
 	}
 	if err = r.db.Create(&user).Error; err != nil {
-		return err, 1
+		return err, 1 //пользователь создан
 	}
-	return nil, 2
+	return nil, 2 // произошла ошибка с создание пользователя
 }
 
 func (r *Repository) LoginUser(user ds.Users) (error, string) {
 	var user_in_db ds.Users
 	err := r.db.First(&user_in_db, "login = ?", user.Login).Error
 	if err != nil {
-		return errors.New("Такого пользователя нет в бд"), ""
+		return errors.New("Такой пользователь не существует"), ""
 	}
 	if user.Password != user_in_db.Password {
 		return errors.New("Пароли не совпадают"), ""
