@@ -1,4 +1,164 @@
+basePath: /
+definitions:
+  ds.Meals:
+    properties:
+      id:
+        type: integer
+      image_url:
+        type: string
+      meal_brand:
+        type: string
+      meal_detail:
+        type: string
+      meal_info:
+        type: string
+      meal_weight:
+        type: string
+      status:
+        type: boolean
+    type: object
+  schemas.GetMealResponse:
+    properties:
+      meal:
+        $ref: '#/definitions/ds.Meals'
+    type: object
+  schemas.LoginUserRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  schemas.RegisterUserRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  schemas.ResponseMessage:
+    type: object
+host: localhost:8080
 info:
   contact: {}
-paths: {}
+  description: This is API for Milk Kitchen requests
+  title: DevIntApp
+  version: "1.1"
+paths:
+  /api/login_user:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a JWT token.
+      parameters:
+      - description: User login data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged in successfully
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Login a user
+      tags:
+      - users
+  /api/meal/{ID}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a meal using its ID
+      parameters:
+      - description: Meal ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.GetMealResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Get a meal by ID
+      tags:
+      - meals
+  /api/meals:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all meals.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of meals retrieved successfully
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Get all meals
+      tags:
+      - meals
+  /api/register_user:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user.
+      parameters:
+      - description: User registration data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User registered successfully
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "409":
+          description: User with this login already exists
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Register a new user
+      tags:
+      - users
 swagger: "2.0"

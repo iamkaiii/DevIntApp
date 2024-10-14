@@ -1,7 +1,6 @@
 package api
 
 import (
-	_ "DevIntApp/docs"
 	"DevIntApp/internal/app/config"
 	"DevIntApp/internal/app/dsn"
 	"DevIntApp/internal/app/repository"
@@ -29,8 +28,6 @@ func (a *Application) Run() {
 	log.Println("Server start up")
 	r := gin.Default()
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 	r.GET("/api/meals", a.GetAllMeals)                          // да
 	r.GET("/api/meal/:ID", a.GetMeal)                           // да + картинка?
 	r.POST("/api/meal", a.CreateMeal)                           // да
@@ -57,6 +54,8 @@ func (a *Application) Run() {
 		userID := c.MustGet("userID").(float64)
 		c.JSON(http.StatusOK, gin.H{"message": "Пользователь авторизован с правами модератора", "userID": userID})
 	})
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.Static("/css", "./resources")
 	err := r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

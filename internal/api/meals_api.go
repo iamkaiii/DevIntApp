@@ -8,6 +8,15 @@ import (
 	"strconv"
 )
 
+// @Summary Get all meals
+// @Description Returns a list of all meals.
+// @Tags meals
+// @Accept json
+// @Produce json
+// @Success 200 {object} schemas.ResponseMessage "List of meals retrieved successfully"
+// @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
+// @Failure 500 {object} schemas.ResponseMessage "Internal server error"
+// @Router /api/meals [get]
 func (a *Application) GetAllMeals(c *gin.Context) {
 	var request schemas.GetAllMealsRequest
 	if err := c.ShouldBindQuery(&request); err != nil {
@@ -37,19 +46,21 @@ func (a *Application) GetAllMeals(c *gin.Context) {
 	return
 }
 
-// @Summary Get a meal
-// @Description Returns a meal by ID.
+// GetMeal godoc
+// @Summary Get a meal by ID
+// @Description Get details of a meal using its ID
 // @Tags meals
 // @Accept json
 // @Produce json
-// @Param  ID    path  string true "Meal ID"
-// @Success 200 {object} schemas.GetMealResponse "Meal retrieved successfully"
+// @Param ID path string true "Meal ID"
+// @Success 200 {object} schemas.GetMealResponse
 // @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
 // @Failure 500 {object} schemas.ResponseMessage "Internal server error"
-
+// @Router /api/meal/{ID} [get]
 func (a *Application) GetMeal(c *gin.Context) {
 	var request schemas.GetMealRequest
 	request.ID = c.Param("ID")
+	log.Println(request.ID)
 	if err := c.ShouldBindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -103,6 +114,7 @@ func (a *Application) UpdateMeal(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.Println(request)
 	err := a.repo.UpdateMealByID(request.ID, request.Meals)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

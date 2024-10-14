@@ -1,6 +1,7 @@
 package schemas
 
 import (
+	_ "DevIntApp/docs"
 	"DevIntApp/internal/app/ds"
 	"time"
 )
@@ -85,9 +86,11 @@ type UpdateAmountMilkReqMealRequest struct {
 }
 
 type RegisterUserRequest struct {
-	ds.Users
+	Login    string `json:"login"`
+	Password string `json:"password"`
 }
 
 type LoginUserRequest struct {
-	ds.Users
+	Login    string `json:"login"`
+	Password string `json:"password"`
 }

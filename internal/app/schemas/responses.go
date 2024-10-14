@@ -1,6 +1,7 @@
 package schemas
 
 import (
+	_ "DevIntApp/docs"
 	"DevIntApp/internal/app/ds"
 )
 
@@ -37,3 +38,6 @@ type GetMilkRequestResponse struct {
 type DeleteMealFromMilkReqResponse struct{}
 
 type UpdateOrderMilkReqMealsResponse struct{}
+
+type ResponseMessage struct {
+}
