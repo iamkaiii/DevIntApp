@@ -4,8 +4,10 @@ import (
 	"DevIntApp/internal/app/ds"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -17,7 +19,6 @@ func (a *Application) RoleMiddleware(allowedRoles ...ds.Users) gin.HandlerFunc {
 		if tokenString == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
 			return
-
 		}
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -30,7 +31,13 @@ func (a *Application) RoleMiddleware(allowedRoles ...ds.Users) gin.HandlerFunc {
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
+
 		userID, ok := claims["userID"].(float64)
+
+		if a.tokenBlacklist(userID, tokenString) {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Токен устарел"})
+			return
+		}
 
 		if !ok {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
@@ -71,4 +78,17 @@ func (a *Application) extractTokenFromHandler(req *http.Request) string {
 		return ""
 	}
 	return strings.Split(bearerToken, " ")[1]
+}
+
+func (a *Application) tokenBlacklist(userID float64, token string) bool {
+	userIDStr := strconv.FormatFloat(userID, 'f', 0, 64)
+	res, err := a.repo.CheckBlacklist(userIDStr)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if res == "revoked" {
+		return true
+	}
+	return false
 }

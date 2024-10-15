@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis"
 	log "github.com/sirupsen/logrus"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"os"
@@ -33,6 +34,11 @@ func New(dsn string) (*Repository, error) {
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0,
 	})
+
+	err = redisClient.Ping().Err()
+	if err != nil {
+		return nil, err
+	}
 
 	return &Repository{
 		db: db,
@@ -354,6 +360,29 @@ func (r *Repository) SaveJWTToken(userID int, token string) error {
 	exp := 1 * time.Hour
 	userID_str := strconv.Itoa(userID)
 	err := r.rd.Set(userID_str, token, exp).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) CheckBlacklist(key string) (string, error) {
+	result, err := r.rd.Get(key).Result()
+	if err != nil {
+		return "", err
+	}
+	return result, err
+}
+
+func (r *Repository) LogoutUser(login string, token string) error {
+	var userInDB ds.Users
+	err := r.db.First(&userInDB, "login = ?", login).Error
+	if err != nil {
+		return errors.New("Такой пользователь не существует")
+	}
+	userIDStr := strconv.Itoa(userInDB.ID)
+	exp := 24 * time.Hour
+	err = r.rd.Set(userIDStr, "revoked", exp).Err()
 	if err != nil {
 		return err
 	}

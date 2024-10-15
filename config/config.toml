@@ -1,4 +1,10 @@
 ServiceHost = "0.0.0.0"
 ServicePort = 80
 
+# НАСТРОЙКИ Redis
+[Redis]
+
+# Таймауты в миллисекундах
+DialTimeout = "10s"
+ReadTimeout = "10s"
 #файл конфигурации

@@ -4,6 +4,7 @@ import (
 	"DevIntApp/internal/app/ds"
 	"DevIntApp/internal/app/schemas"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -74,4 +75,40 @@ func (a *Application) LoginUser(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+// @Summary Logout
+// @Description Log out the user by blacklisting the token
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer Token"
+// @Param Login header string true "User login"
+// @Success 200 {object} schemas.ResponseMessage "User logged out successfully"
+// @Failure 401 {object} schemas.ResponseMessage "Missing token"
+// @Failure 500 {object} schemas.ResponseMessage "Internal server error"
+// @Router /api/logout [post]
+func (a *Application) LogoutUser(c *gin.Context) {
+	token := c.GetHeader("Authorization")
+	if token == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
+		return
+	}
+
+	login := c.GetHeader("Login")
+	if login == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing login"})
+		return
+	}
+
+	log.Println(login, token)
+	err := a.repo.LogoutUser(login, token)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// В данном примере токен добавляется в черный список на 24 часа. turn
+
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }

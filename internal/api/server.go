@@ -45,7 +45,7 @@ func (a *Application) Run() {
 	r.PUT("/api/milk_request/:ID", a.UpdateFieldsMilkReq)
 	r.DELETE("/api/milk_request/:ID", a.DeleteMilkRequest)
 	r.PUT("/api/milk_request/form/:ID", a.FormMilkRequest)
-	r.PUT("/api/milk_request/finish/:ID", a.FinishMilkRequest)
+	r.PUT("/api/milk_request/finish/:ID", a.RoleMiddleware(ds.Users{IsModerator: true}), a.FinishMilkRequest)
 
 	r.DELETE("/api/milk_req_meals/:ID", a.DeleteMealFromMilkReq)
 	r.PUT("/api/milk_req_meals/:ID", a.UpdateAmountMilkReqMeal)
@@ -54,6 +54,7 @@ func (a *Application) Run() {
 
 	r.POST("/api/register_user", a.RegisterUser)
 	r.POST("/api/login_user", a.LoginUser)
+	r.POST("/api/logout", a.LogoutUser)
 
 	r.GET("/protected", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), func(c *gin.Context) {
 		userID := c.MustGet("userID").(float64)
@@ -62,7 +63,6 @@ func (a *Application) Run() {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.Static("/css", "./resources")
 	err := r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 	if err != nil {
 		log.Fatal(err)
