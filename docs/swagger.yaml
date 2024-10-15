@@ -17,6 +17,53 @@ definitions:
       status:
         type: boolean
     type: object
+  ds.MilkRequests:
+    properties:
+      address:
+        type: string
+      creator:
+        $ref: '#/definitions/ds.Users'
+      creator_id:
+        type: integer
+      date_create:
+        type: string
+      date_finish:
+        type: string
+      date_update:
+        type: string
+      delivery_date:
+        type: string
+      id:
+        type: integer
+      moderator:
+        $ref: '#/definitions/ds.Users'
+      moderator_id:
+        type: integer
+      recipient_name:
+        type: string
+      recipient_surname:
+        type: string
+      status:
+        type: integer
+    type: object
+  ds.Users:
+    properties:
+      id:
+        type: integer
+      is_moderator:
+        type: boolean
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  schemas.GetAllMilkRequestsWithParamsResponse:
+    properties:
+      milkRequests:
+        items:
+          $ref: '#/definitions/ds.MilkRequests'
+        type: array
+    type: object
   schemas.GetMealResponse:
     properties:
       meal:
@@ -127,6 +174,41 @@ paths:
       summary: Get all meals
       tags:
       - meals
+  /api/milk_requests:
+    get:
+      consumes:
+      - application/json
+      description: Получить список запросов на молоко с возможностью фильтрации по
+        статусу и датам
+      parameters:
+      - description: Статус заявки
+        in: query
+        name: status
+        type: string
+      - description: Наличие статуса
+        in: query
+        name: is_status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.GetAllMilkRequestsWithParamsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Получить все заявки на молочную кухню с параметрами
+      tags:
+      - milk_requests
   /api/register_user:
     post:
       consumes:
@@ -161,4 +243,9 @@ paths:
       summary: Register a new user
       tags:
       - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

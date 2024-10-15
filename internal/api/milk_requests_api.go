@@ -7,26 +7,45 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
-	"time"
 )
 
+// GetAllMilkRequestsWithParams godoc
+// @Summary Получить все заявки на молочную кухню с параметрами
+// @Description Получить список запросов на молоко с возможностью фильтрации по статусу и датам
+// @Tags milk_requests
+// @Accept json
+// @Produce json
+// @Param status query string false "Статус заявки"
+// @Param is_status query string false "Наличие статуса"
+// @Success 200 {object} schemas.GetAllMilkRequestsWithParamsResponse
+// @Failure 400 {object} schemas.ResponseMessage
+// @Failure 500 {object} schemas.ResponseMessage
+// @Router /api/milk_requests [get]
+// @Security BearerAuth
 func (a *Application) GetAllMilkRequestsWithParams(c *gin.Context) {
-	var request schemas.GetAllMilkRequestsWithParamsRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	status, _ := strconv.Atoi(c.Query("status"))
+	havingStatus, _ := strconv.ParseBool(c.Query("is_status"))
+
+	isModerator, ok := c.Get("isModerator")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, ok)
 		return
 	}
-	if request.FromDate.IsZero() {
-		request.FromDate = time.Date(2000, time.January, 1, 0, 0, 0, 396641000, time.UTC)
+	isModeratorBool := isModerator.(bool)
+
+	userID, ok := c.Get("userID")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, ok)
+		return
 	}
-	if request.ToDate.IsZero() {
-		request.ToDate = time.Now()
-	}
-	milkRequests, err := a.repo.GetAllMilkRequestsWithFilters(request.Status, request.HavingStatus)
+	userIDInt := userID.(float64)
+
+	milkRequests, err := a.repo.GetAllMilkRequestsWithFilters(status, havingStatus, isModeratorBool, userIDInt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	response := schemas.GetAllMilkRequestsWithParamsResponse{MilkRequests: milkRequests}
 	c.JSON(http.StatusOK, response)
 }

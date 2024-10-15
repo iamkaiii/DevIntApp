@@ -37,10 +37,8 @@ type ChangePicRequest struct {
 ///MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS///
 
 type GetAllMilkRequestsWithParamsRequest struct {
-	HavingStatus bool      `json:"is_status"`
-	Status       int       `json:"status"`
-	FromDate     time.Time `json:"from_date"`
-	ToDate       time.Time `json:"to_date"`
+	HavingStatus bool `json:"is_status"`
+	Status       int  `json:"status"`
 }
 
 type GetMilkRequestRequest struct {

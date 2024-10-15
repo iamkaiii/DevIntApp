@@ -1,9 +1,9 @@
 package api
 
 import (
+	"DevIntApp/internal/app/ds"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -11,7 +11,7 @@ import (
 
 const prefix = "Bearer"
 
-func (a *Application) RoleMiddleware() gin.HandlerFunc {
+func (a *Application) RoleMiddleware(allowedRoles ...ds.Users) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := a.extractTokenFromHandler(c.Request)
 		if tokenString == "" {
@@ -30,8 +30,6 @@ func (a *Application) RoleMiddleware() gin.HandlerFunc {
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
-		log.Println(claims)
-
 		userID, ok := claims["userID"].(float64)
 
 		if !ok {
@@ -45,14 +43,23 @@ func (a *Application) RoleMiddleware() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
 			return
 		}
+		c.Set("isModerator", userRole)
 
-		if userRole != true { //проверка, является ли модератором
+		if !isRoleAllowed(allowedRoles, userRole) { //проверка, является ли модератором
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Отказано в доступе"})
 			return
 		}
 		c.Next()
-
 	}
+}
+
+func isRoleAllowed(roles []ds.Users, userRole bool) bool {
+	for _, allowedRole := range roles {
+		if userRole == allowedRole.IsModerator {
+			return true
+		}
+	}
+	return false
 }
 
 func (a *Application) extractTokenFromHandler(req *http.Request) string {

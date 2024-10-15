@@ -2,6 +2,7 @@ package api
 
 import (
 	"DevIntApp/internal/app/config"
+	"DevIntApp/internal/app/ds"
 	"DevIntApp/internal/app/dsn"
 	"DevIntApp/internal/app/repository"
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,9 @@ type Application struct {
 // @description This is API for Milk Kitchen requests
 // @host localhost:8080
 // @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 
 func (a *Application) Run() {
 	log.Println("Server start up")
@@ -34,10 +38,10 @@ func (a *Application) Run() {
 	r.DELETE("/api/meal/:ID", a.DeleteMeal)                     // да
 	r.PUT("/api/meal/:ID", a.UpdateMeal)                        // да
 	r.POST("/api/meal_to_milk_request/:ID", a.AddMealToMilkReq) // да
-	r.POST("api/meal/change_pic/:ID", a.ChangePic)              // да
+	r.POST("/api/meal/change_pic/:ID", a.ChangePic)             // да
 
-	r.GET("/api/milk_requests", a.GetAllMilkRequestsWithParams)
-	r.GET("/api/milk_request/:ID", a.GetMilkRequest)
+	r.GET("/api/milk_requests", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetAllMilkRequestsWithParams)
+	r.GET("/api/milk_request/:ID", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetMilkRequest)
 	r.PUT("/api/milk_request/:ID", a.UpdateFieldsMilkReq)
 	r.DELETE("/api/milk_request/:ID", a.DeleteMilkRequest)
 	r.PUT("/api/milk_request/form/:ID", a.FormMilkRequest)
@@ -50,7 +54,8 @@ func (a *Application) Run() {
 
 	r.POST("/api/register_user", a.RegisterUser)
 	r.POST("/api/login_user", a.LoginUser)
-	r.GET("/protected", a.RoleMiddleware(), func(c *gin.Context) {
+
+	r.GET("/protected", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), func(c *gin.Context) {
 		userID := c.MustGet("userID").(float64)
 		c.JSON(http.StatusOK, gin.H{"message": "Пользователь авторизован с правами модератора", "userID": userID})
 	})

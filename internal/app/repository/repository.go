@@ -216,12 +216,15 @@ func (r *Repository) ChangePicByID(id string, image string) error {
 	return nil
 }
 
-func (r *Repository) GetAllMilkRequestsWithFilters(status int, having_status bool) ([]ds.MilkRequests, error) {
+func (r *Repository) GetAllMilkRequestsWithFilters(status int, having_status bool, isModerator bool, userID float64) ([]ds.MilkRequests, error) {
 	var milkRequests []ds.MilkRequests
 	log.Println(status, having_status)
 	db := r.db // Инициализируем db без фильтра по дате
 	if having_status {
 		db = db.Where("Status = ?", status) // Фильтр по статусу
+	}
+	if isModerator == false {
+		db = db.Where("Creator_ID = ? AND Status = ?", userID, status)
 	}
 	err := db.Find(&milkRequests).Error // Выборка записей из базы данных
 	if err != nil {
