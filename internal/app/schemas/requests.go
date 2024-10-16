@@ -2,18 +2,23 @@ package schemas
 
 import (
 	_ "DevIntApp/docs"
-	"DevIntApp/internal/app/ds"
 	"time"
 )
 
-type GetAllMealsRequest struct{}
+type GetAllMealsRequest struct {
+}
 
 type GetMealRequest struct {
 	ID string
 }
 
 type CreateMealRequest struct {
-	ds.Meals
+	MealInfo   string `json:"meal_info"`
+	MealWeight string `json:"meal_weight"`
+	MealBrand  string `json:"meal_brand"`
+	MealDetail string `json:"meal_detail"`
+	ImageUrl   string `json:"image_url"`
+	Status     bool   `json:"status"`
 }
 
 type DeleteMealRequest struct {
@@ -21,8 +26,12 @@ type DeleteMealRequest struct {
 }
 
 type UpdateMealRequest struct {
-	ID string
-	ds.Meals
+	MealInfo   string `json:"meal_info"`
+	MealWeight string `json:"meal_weight"`
+	MealBrand  string `json:"meal_brand"`
+	MealDetail string `json:"meal_detail"`
+	ImageUrl   string `json:"image_url"`
+	Status     bool   `json:"status"`
 }
 
 type AddMealToMilkReqRequest struct {

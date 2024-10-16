@@ -164,11 +164,11 @@ func (r *Repository) GetMilkRequestStatusByID(id int) (int, error) {
 	return milkrequest.Status, nil
 }
 
-func (r *Repository) CreateMeal(meal ds.Meals) error {
+func (r *Repository) CreateMeal(meal ds.Meals) (int, error) {
 	if err := r.db.Create(&meal).Error; err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return meal.ID, nil
 }
 
 func (r *Repository) DeleteMealByID(id string) error {

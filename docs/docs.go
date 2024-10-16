@@ -112,9 +112,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/meal/{ID}": {
-            "get": {
-                "description": "Get details of a meal using its ID",
+        "/api/meal": {
+            "post": {
+                "description": "Create meal with properties",
                 "consumes": [
                     "application/json"
                 ],
@@ -124,7 +124,53 @@ const docTemplate = `{
                 "tags": [
                     "meals"
                 ],
-                "summary": "Get a meal by ID",
+                "summary": "Create meal",
+                "parameters": [
+                    {
+                        "description": "Meal data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.CreateMealRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.CreateMealResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/meal/{ID}": {
+            "get": {
+                "description": "Get info about meal using its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals"
+                ],
+                "summary": "Get meal by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -154,11 +200,104 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "Update meal using its ID with parametres",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals"
+                ],
+                "summary": "Update meal by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Meal ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update meal data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UpdateMealRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UpdateMealResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete meal using its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals"
+                ],
+                "summary": "Delete meal by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Meal ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.DeleteMealResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
             }
         },
         "/api/meals": {
             "get": {
-                "description": "Returns a list of all meals.",
+                "description": "Returns a list ofall meals.",
                 "consumes": [
                     "application/json"
                 ],
@@ -173,7 +312,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of meals retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/schemas.ResponseMessage"
+                            "$ref": "#/definitions/schemas.GetAllMealsResponse"
                         }
                     },
                     "400": {
@@ -296,6 +435,57 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/milk_req_meals/{ID}": {
+            "delete": {
+                "description": "Удаляет блюдо из запроса на молоко по ID запроса и MealID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals_and_requests"
+                ],
+                "summary": "Удалить блюдо из запроса на молоко",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID запроса на молоко",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID блюда",
+                        "name": "MealID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Meal was deleted from milk request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -386,6 +576,68 @@ const docTemplate = `{
                 }
             }
         },
+        "schemas.CreateMealRequest": {
+            "type": "object",
+            "properties": {
+                "image_url": {
+                    "type": "string"
+                },
+                "meal_brand": {
+                    "type": "string"
+                },
+                "meal_detail": {
+                    "type": "string"
+                },
+                "meal_info": {
+                    "type": "string"
+                },
+                "meal_weight": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "schemas.CreateMealResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "messageResponse": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas.DeleteMealResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "messageResponse": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas.GetAllMealsResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "meals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.Meals"
+                    }
+                },
+                "milk_req_ID": {
+                    "type": "integer"
+                }
+            }
+        },
         "schemas.GetAllMilkRequestsWithParamsResponse": {
             "type": "object",
             "properties": {
@@ -429,6 +681,40 @@ const docTemplate = `{
         },
         "schemas.ResponseMessage": {
             "type": "object"
+        },
+        "schemas.UpdateMealRequest": {
+            "type": "object",
+            "properties": {
+                "image_url": {
+                    "type": "string"
+                },
+                "meal_brand": {
+                    "type": "string"
+                },
+                "meal_detail": {
+                    "type": "string"
+                },
+                "meal_info": {
+                    "type": "string"
+                },
+                "meal_weight": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "schemas.UpdateMealResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "messageResponse": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {

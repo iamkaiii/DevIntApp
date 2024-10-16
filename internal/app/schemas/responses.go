@@ -15,9 +15,20 @@ type GetMealResponse struct {
 	Meal ds.Meals `json:"meal"`
 }
 
-type CreateMealResponse struct{}
+type CreateMealResponse struct {
+	ID              int
+	MessageResponse string
+}
 
-type DeleteMealResponse struct{}
+type DeleteMealResponse struct {
+	ID              int
+	MessageResponse string
+}
+
+type UpdateMealResponse struct {
+	ID              int
+	MessageResponse string
+}
 
 ///MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS///
 

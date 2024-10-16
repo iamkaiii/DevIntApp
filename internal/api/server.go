@@ -32,13 +32,13 @@ func (a *Application) Run() {
 	log.Println("Server start up")
 	r := gin.Default()
 
-	r.GET("/api/meals", a.GetAllMeals)                          // да
-	r.GET("/api/meal/:ID", a.GetMeal)                           // да + картинка?
-	r.POST("/api/meal", a.CreateMeal)                           // да
-	r.DELETE("/api/meal/:ID", a.DeleteMeal)                     // да
-	r.PUT("/api/meal/:ID", a.UpdateMeal)                        // да
-	r.POST("/api/meal_to_milk_request/:ID", a.AddMealToMilkReq) // да
-	r.POST("/api/meal/change_pic/:ID", a.ChangePic)             // да
+	r.GET("/api/meals", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetAllMeals) // да
+	r.GET("/api/meal/:ID", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetMeal)  // да + картинка?
+	r.POST("/api/meal", a.CreateMeal)                                                                               // да
+	r.DELETE("/api/meal/:ID", a.DeleteMeal)                                                                         // да
+	r.PUT("/api/meal/:ID", a.UpdateMeal)                                                                            // да
+	r.POST("/api/meal_to_milk_request/:ID", a.AddMealToMilkReq)                                                     // да
+	r.POST("/api/meal/change_pic/:ID", a.ChangePic)                                                                 // да
 
 	r.GET("/api/milk_requests", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetAllMilkRequestsWithParams)
 	r.GET("/api/milk_request/:ID", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetMilkRequest)

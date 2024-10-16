@@ -57,6 +57,46 @@ definitions:
       password:
         type: string
     type: object
+  schemas.CreateMealRequest:
+    properties:
+      image_url:
+        type: string
+      meal_brand:
+        type: string
+      meal_detail:
+        type: string
+      meal_info:
+        type: string
+      meal_weight:
+        type: string
+      status:
+        type: boolean
+    type: object
+  schemas.CreateMealResponse:
+    properties:
+      id:
+        type: integer
+      messageResponse:
+        type: string
+    type: object
+  schemas.DeleteMealResponse:
+    properties:
+      id:
+        type: integer
+      messageResponse:
+        type: string
+    type: object
+  schemas.GetAllMealsResponse:
+    properties:
+      count:
+        type: integer
+      meals:
+        items:
+          $ref: '#/definitions/ds.Meals'
+        type: array
+      milk_req_ID:
+        type: integer
+    type: object
   schemas.GetAllMilkRequestsWithParamsResponse:
     properties:
       milkRequests:
@@ -84,6 +124,28 @@ definitions:
         type: string
     type: object
   schemas.ResponseMessage:
+    type: object
+  schemas.UpdateMealRequest:
+    properties:
+      image_url:
+        type: string
+      meal_brand:
+        type: string
+      meal_detail:
+        type: string
+      meal_info:
+        type: string
+      meal_weight:
+        type: string
+      status:
+        type: boolean
+    type: object
+  schemas.UpdateMealResponse:
+    properties:
+      id:
+        type: integer
+      messageResponse:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -156,11 +218,69 @@ paths:
       summary: Logout
       tags:
       - users
+  /api/meal:
+    post:
+      consumes:
+      - application/json
+      description: Create meal with properties
+      parameters:
+      - description: Meal data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.CreateMealRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/schemas.CreateMealResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Create meal
+      tags:
+      - meals
   /api/meal/{ID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete meal using its ID
+      parameters:
+      - description: Meal ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.DeleteMealResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Delete meal by ID
+      tags:
+      - meals
     get:
       consumes:
       - application/json
-      description: Get details of a meal using its ID
+      description: Get info about meal using its ID
       parameters:
       - description: Meal ID
         in: path
@@ -182,21 +302,55 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
-      summary: Get a meal by ID
+      summary: Get meal by ID
+      tags:
+      - meals
+    put:
+      consumes:
+      - application/json
+      description: Update meal using its ID with parametres
+      parameters:
+      - description: Meal ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: Update meal data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UpdateMealRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.UpdateMealResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Update meal by ID
       tags:
       - meals
   /api/meals:
     get:
       consumes:
       - application/json
-      description: Returns a list of all meals.
+      description: Returns a list ofall meals.
       produces:
       - application/json
       responses:
         "200":
           description: List of meals retrieved successfully
           schema:
-            $ref: '#/definitions/schemas.ResponseMessage'
+            $ref: '#/definitions/schemas.GetAllMealsResponse'
         "400":
           description: Invalid request body
           schema:
@@ -277,6 +431,40 @@ paths:
       summary: Register a new user
       tags:
       - users
+  /milk_req_meals/{ID}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет блюдо из запроса на молоко по ID запроса и MealID
+      parameters:
+      - description: ID запроса на молоко
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: ID блюда
+        in: query
+        name: MealID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Meal was deleted from milk request
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Удалить блюдо из запроса на молоко
+      tags:
+      - meals_and_requests
 securityDefinitions:
   BearerAuth:
     in: header
