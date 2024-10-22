@@ -131,10 +131,7 @@ func (a *Application) UploadImage(c *gin.Context, image *multipart.FileHeader) (
 
 func (a *Application) DeleteImage(c *gin.Context, meal ds.Meals) error {
 	splitedUrl := strings.Split(meal.ImageUrl, "/")
+	log.Println(splitedUrl)
 	err := a.minioClient.RemoveObject(context.Background(), a.config.Minio.BucketName, splitedUrl[len(splitedUrl)-1], minio.RemoveObjectOptions{})
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return err
-	}
-	return nil
+	return err
 }

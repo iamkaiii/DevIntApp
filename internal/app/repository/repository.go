@@ -176,7 +176,6 @@ func (r *Repository) DeleteMealByID(id string) error {
 	if err := r.db.First(&meal, id).Error; err != nil {
 		return err // Если запись не найдена или произошла ошибка, возвращаем её
 	}
-	meal.ImageUrl = ""
 	meal.Status = false // Предполагается, что у вас есть поле Status в структуре Meal
 	if err := r.db.Save(&meal).Error; err != nil {
 		return err // Возвращаем ошибку, если обновление не удалось
@@ -373,7 +372,7 @@ func (r *Repository) CheckBlacklist(key string) (string, error) {
 	return result, err
 }
 
-func (r *Repository) LogoutUser(login string, token string) error {
+func (r *Repository) LogoutUser(login string) error {
 	var userInDB ds.Users
 	err := r.db.First(&userInDB, "login = ?", login).Error
 	if err != nil {

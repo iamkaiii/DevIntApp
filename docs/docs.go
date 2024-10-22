@@ -76,18 +76,13 @@ const docTemplate = `{
                 "summary": "Logout",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Bearer Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User login",
-                        "name": "Login",
-                        "in": "header",
-                        "required": true
+                        "description": "User login data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.LogoutUserRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -160,7 +155,7 @@ const docTemplate = `{
         },
         "/api/meal/change_pic/{ID}": {
             "post": {
-                "description": "This endpoint allows you to add a meal to a milk request by its ID.",
+                "description": "Delete meal using it's ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -170,7 +165,7 @@ const docTemplate = `{
                 "tags": [
                     "meals"
                 ],
-                "summary": "Add Meal to Milk Request",
+                "summary": "Change picture By ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -181,7 +176,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "file",
-                        "description": "Изображение получателя",
+                        "description": "File",
                         "name": "image",
                         "in": "formData",
                         "required": true
@@ -189,7 +184,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Changed",
+                        "description": "Picture was changed sucessfully",
                         "schema": {
                             "$ref": "#/definitions/schemas.ResponseMessage"
                         }
@@ -199,6 +194,11 @@ const docTemplate = `{
         },
         "/api/meal/{ID}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get info about meal using its ID",
                 "consumes": [
                     "application/json"
@@ -241,7 +241,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update meal using its ID with parametres",
+                "description": "Update meal using it's ID with parametres",
                 "consumes": [
                     "application/json"
                 ],
@@ -292,7 +292,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete meal using its ID",
+                "description": "Delete meal using it's ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -336,7 +336,7 @@ const docTemplate = `{
         },
         "/api/meal_to_milk_request/{ID}": {
             "post": {
-                "description": "This endpoint allows you to add a meal to a milk request by its ID.",
+                "description": "This endpoint allows you to add a meal to a milk request by it's ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -346,7 +346,7 @@ const docTemplate = `{
                 "tags": [
                     "meals"
                 ],
-                "summary": "Add Meal to Milk Request",
+                "summary": "Add meal to milk request",
                 "parameters": [
                     {
                         "type": "string",
@@ -380,7 +380,12 @@ const docTemplate = `{
         },
         "/api/meals": {
             "get": {
-                "description": "Returns a list ofall meals.",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of all meals.",
                 "consumes": [
                     "application/json"
                 ],
@@ -761,6 +766,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas.LogoutUserRequest": {
+            "type": "object",
+            "properties": {
+                "login": {
                     "type": "string"
                 }
             }

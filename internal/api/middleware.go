@@ -15,11 +15,14 @@ const prefix = "Bearer"
 
 func (a *Application) RoleMiddleware(allowedRoles ...ds.Users) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		as := c.GetHeader("Authorization")
+		log.Println(as)
 		tokenString := a.extractTokenFromHandler(c.Request)
 		if tokenString == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
 			return
 		}
+		log.Println(tokenString)
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("JWT_KEY")), nil

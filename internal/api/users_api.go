@@ -81,25 +81,19 @@ func (a *Application) LoginUser(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer Token"
-// @Param Login header string true "User login"
+// @Param body body schemas.LogoutUserRequest true "User login data"
 // @Success 200 {object} schemas.ResponseMessage "User logged out successfully"
 // @Failure 401 {object} schemas.ResponseMessage "Missing token"
 // @Failure 500 {object} schemas.ResponseMessage "Internal server error"
 // @Router /api/logout [post]
 func (a *Application) LogoutUser(c *gin.Context) {
-	token := c.GetHeader("Authorization")
-	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
+	var request schemas.LogoutUserRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	login := c.GetHeader("Login")
-	if login == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing login"})
-		return
-	}
-	log.Println(login, token)
-	err := a.repo.LogoutUser(login, token)
+	log.Println(request.Login)
+	err := a.repo.LogoutUser(request.Login)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

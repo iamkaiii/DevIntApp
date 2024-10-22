@@ -125,6 +125,11 @@ definitions:
       password:
         type: string
     type: object
+  schemas.LogoutUserRequest:
+    properties:
+      login:
+        type: string
+    type: object
   schemas.RegisterUserRequest:
     properties:
       login:
@@ -199,16 +204,12 @@ paths:
       - application/json
       description: Log out the user by blacklisting the token
       parameters:
-      - description: Bearer Token
-        in: header
-        name: Authorization
+      - description: User login data
+        in: body
+        name: body
         required: true
-        type: string
-      - description: User login
-        in: header
-        name: Login
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/schemas.LogoutUserRequest'
       produces:
       - application/json
       responses:
@@ -261,7 +262,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Delete meal using its ID
+      description: Delete meal using it's ID
       parameters:
       - description: Meal ID
         in: path
@@ -311,13 +312,15 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
       summary: Get meal by ID
       tags:
       - meals
     put:
       consumes:
       - application/json
-      description: Update meal using its ID with parametres
+      description: Update meal using it's ID with parametres
       parameters:
       - description: Meal ID
         in: path
@@ -352,15 +355,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: This endpoint allows you to add a meal to a milk request by its
-        ID.
+      description: Delete meal using it's ID
       parameters:
       - description: Meal ID
         in: path
         name: ID
         required: true
         type: string
-      - description: Изображение получателя
+      - description: File
         in: formData
         name: image
         required: true
@@ -369,17 +371,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: Changed
+          description: Picture was changed sucessfully
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
-      summary: Add Meal to Milk Request
+      summary: Change picture By ID
       tags:
       - meals
   /api/meal_to_milk_request/{ID}:
     post:
       consumes:
       - application/json
-      description: This endpoint allows you to add a meal to a milk request by its
+      description: This endpoint allows you to add a meal to a milk request by it's
         ID.
       parameters:
       - description: Meal ID
@@ -402,14 +404,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
-      summary: Add Meal to Milk Request
+      summary: Add meal to milk request
       tags:
       - meals
   /api/meals:
     get:
       consumes:
       - application/json
-      description: Returns a list ofall meals.
+      description: Returns a list of all meals.
       produces:
       - application/json
       responses:
@@ -425,6 +427,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
       summary: Get all meals
       tags:
       - meals

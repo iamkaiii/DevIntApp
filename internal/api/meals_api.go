@@ -10,10 +10,11 @@ import (
 )
 
 // @Summary Get all meals
-// @Description Returns a list ofall meals.
+// @Description Returns a list of all meals.
 // @Tags meals
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Success 200 {object} schemas.GetAllMealsResponse "List of meals retrieved successfully"
 // @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
 // @Failure 500 {object} schemas.ResponseMessage "Internal server error"
@@ -52,6 +53,7 @@ func (a *Application) GetAllMeals(c *gin.Context) {
 // @Tags meals
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param ID path string true "Meal ID"
 // @Success 200 {object} schemas.GetMealResponse
 // @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
@@ -110,7 +112,7 @@ func (a *Application) CreateMeal(c *gin.Context) {
 }
 
 // @Summary Delete meal by ID
-// @Description Delete meal using its ID
+// @Description Delete meal using it's ID
 // @Tags meals
 // @Accept json
 // @Produce json
@@ -126,7 +128,14 @@ func (a *Application) DeleteMeal(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := a.repo.DeleteMealByID(request.ID)
+	meal, err := a.repo.GetMealByID(request.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	log.Println(meal)
+
+	err = a.repo.DeleteMealByID(request.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -136,14 +145,16 @@ func (a *Application) DeleteMeal(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	meal, err := a.repo.GetMealByID(request.ID)
-	if err != nil {
+	meal, err1 := a.repo.GetMealByID(request.ID)
+	if err1 != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	err = a.DeleteImage(c, meal)
 	if err != nil {
-		c.JSON(418, gin.H{"error": err.Error()})
+		response := schemas.DeleteMealResponse{ID: intID, MessageResponse: "Meal was deleted successfully"}
+		c.JSON(418, response)
+		return
 	}
 	err = a.repo.ChangePicByID(request.ID, "")
 	if err != nil {
@@ -155,7 +166,7 @@ func (a *Application) DeleteMeal(c *gin.Context) {
 }
 
 // @Summary Update meal by ID
-// @Description Update meal using its ID with parametres
+// @Description Update meal using it's ID with parametres
 // @Tags meals
 // @Accept json
 // @Produce json
@@ -198,8 +209,8 @@ func (a *Application) UpdateMeal(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// @Summary Add Meal to Milk Request
-// @Description This endpoint allows you to add a meal to a milk request by its ID.
+// @Summary Add meal to milk request
+// @Description This endpoint allows you to add a meal to a milk request by it's ID.
 // @Tags meals
 // @Accept json
 // @Produce json
@@ -237,14 +248,14 @@ func (a *Application) AddMealToMilkReq(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// @Summary Add Meal to Milk Request
-// @Description This endpoint allows you to add a meal to a milk request by its ID.
+// @Summary Change picture By ID
+// @Description Delete meal using it's ID
 // @Tags meals
 // @Accept json
 // @Produce json
 // @Param ID path string true "Meal ID"
-// @Param image formData file true "Изображение получателя"
-// @Success 200 {object} schemas.ResponseMessage "Changed"
+// @Param image formData file true "File"
+// @Success 200 {object} schemas.ResponseMessage "Picture was changed sucessfully"
 // @Router /api/meal/change_pic/{ID} [post]
 func (a *Application) ChangePic(c *gin.Context) {
 	var request schemas.ChangeImgRequest

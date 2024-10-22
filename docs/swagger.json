@@ -70,18 +70,13 @@
                 "summary": "Logout",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Bearer Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User login",
-                        "name": "Login",
-                        "in": "header",
-                        "required": true
+                        "description": "User login data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.LogoutUserRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -154,7 +149,7 @@
         },
         "/api/meal/change_pic/{ID}": {
             "post": {
-                "description": "This endpoint allows you to add a meal to a milk request by its ID.",
+                "description": "Delete meal using it's ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -164,7 +159,7 @@
                 "tags": [
                     "meals"
                 ],
-                "summary": "Add Meal to Milk Request",
+                "summary": "Change picture By ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -175,7 +170,7 @@
                     },
                     {
                         "type": "file",
-                        "description": "Изображение получателя",
+                        "description": "File",
                         "name": "image",
                         "in": "formData",
                         "required": true
@@ -183,7 +178,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Changed",
+                        "description": "Picture was changed sucessfully",
                         "schema": {
                             "$ref": "#/definitions/schemas.ResponseMessage"
                         }
@@ -193,6 +188,11 @@
         },
         "/api/meal/{ID}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get info about meal using its ID",
                 "consumes": [
                     "application/json"
@@ -235,7 +235,7 @@
                 }
             },
             "put": {
-                "description": "Update meal using its ID with parametres",
+                "description": "Update meal using it's ID with parametres",
                 "consumes": [
                     "application/json"
                 ],
@@ -286,7 +286,7 @@
                 }
             },
             "delete": {
-                "description": "Delete meal using its ID",
+                "description": "Delete meal using it's ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -330,7 +330,7 @@
         },
         "/api/meal_to_milk_request/{ID}": {
             "post": {
-                "description": "This endpoint allows you to add a meal to a milk request by its ID.",
+                "description": "This endpoint allows you to add a meal to a milk request by it's ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -340,7 +340,7 @@
                 "tags": [
                     "meals"
                 ],
-                "summary": "Add Meal to Milk Request",
+                "summary": "Add meal to milk request",
                 "parameters": [
                     {
                         "type": "string",
@@ -374,7 +374,12 @@
         },
         "/api/meals": {
             "get": {
-                "description": "Returns a list ofall meals.",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of all meals.",
                 "consumes": [
                     "application/json"
                 ],
@@ -755,6 +760,14 @@
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas.LogoutUserRequest": {
+            "type": "object",
+            "properties": {
+                "login": {
                     "type": "string"
                 }
             }
