@@ -25,7 +25,6 @@ func (a *Application) RegisterUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	if request.Login == "" || request.Password == "" {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Login or Password can not be empty"})
 		return
@@ -94,21 +93,16 @@ func (a *Application) LogoutUser(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
 		return
 	}
-
 	login := c.GetHeader("Login")
 	if login == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing login"})
 		return
 	}
-
 	log.Println(login, token)
 	err := a.repo.LogoutUser(login, token)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	// В данном примере токен добавляется в черный список на 24 часа. turn
-
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }

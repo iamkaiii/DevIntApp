@@ -2,6 +2,7 @@ package schemas
 
 import (
 	_ "DevIntApp/docs"
+	"mime/multipart"
 	"time"
 )
 
@@ -35,13 +36,14 @@ type UpdateMealRequest struct {
 }
 
 type AddMealToMilkReqRequest struct {
-	ID string
 }
 
-type ChangePicRequest struct {
-	ID       string `json:"id"`
-	ImageUrl string `json:"image_link"`
+type ChangeImgRequest struct {
+	ID    string
+	Image *multipart.FileHeader `form:"image" json:"image"`
 }
+
+type DeleteImgRequest struct{}
 
 ///MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS///
 

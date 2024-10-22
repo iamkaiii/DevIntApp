@@ -30,6 +30,12 @@ type UpdateMealResponse struct {
 	MessageResponse string
 }
 
+type AddMealToMilkReqResponse struct {
+	MealID          int
+	MilkRequestID   int
+	MessageResponse string
+}
+
 ///MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS///
 
 type GetAllMilkRequestsWithParamsResponse struct {

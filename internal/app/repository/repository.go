@@ -64,11 +64,11 @@ func (r *Repository) GetMealByID(mealID string) (ds.Meals, error) {
 	return meal, nil
 }
 
-func (r *Repository) GetMealByMealInfo(info string) ([]ds.Meals, error) {
-	var milkMeal []ds.Meals
+func (r *Repository) GetMealByMealInfo(info string) (ds.Meals, error) {
+	var milkMeal ds.Meals
 	err := r.db.Where("meal_info LIKE ?", "%"+info+"%").First(&milkMeal).Error
 	if err != nil {
-		return nil, err
+		return ds.Meals{}, err
 	}
 	return milkMeal, nil
 }
@@ -205,7 +205,6 @@ func (r *Repository) UpdateMealByID(id string, meal ds.Meals) error {
 }
 
 func (r *Repository) ChangePicByID(id string, image string) error {
-	// 1. Поиск записи по ID
 	meal := ds.Meals{}
 	result := r.db.First(&meal, "ID = ?", id)
 	if result.Error != nil {

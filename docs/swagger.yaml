@@ -57,6 +57,15 @@ definitions:
       password:
         type: string
     type: object
+  schemas.AddMealToMilkReqResponse:
+    properties:
+      mealID:
+        type: integer
+      messageResponse:
+        type: string
+      milkRequestID:
+        type: integer
+    type: object
   schemas.CreateMealRequest:
     properties:
       image_url:
@@ -337,6 +346,63 @@ paths:
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
       summary: Update meal by ID
+      tags:
+      - meals
+  /api/meal/change_pic/{ID}:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows you to add a meal to a milk request by its
+        ID.
+      parameters:
+      - description: Meal ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: Изображение получателя
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Changed
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Add Meal to Milk Request
+      tags:
+      - meals
+  /api/meal_to_milk_request/{ID}:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows you to add a meal to a milk request by its
+        ID.
+      parameters:
+      - description: Meal ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Meal added successfully
+          schema:
+            $ref: '#/definitions/schemas.AddMealToMilkReqResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Add Meal to Milk Request
       tags:
       - meals
   /api/meals:

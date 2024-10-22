@@ -131,12 +131,26 @@ func (a *Application) DeleteMeal(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	stringID, err := strconv.Atoi(request.ID)
+	intID, err := strconv.Atoi(request.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	response := schemas.DeleteMealResponse{ID: stringID, MessageResponse: "Meal was deleted successfully"}
+	meal, err := a.repo.GetMealByID(request.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	err = a.DeleteImage(c, meal)
+	if err != nil {
+		c.JSON(418, gin.H{"error": err.Error()})
+	}
+	err = a.repo.ChangePicByID(request.ID, "")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	response := schemas.DeleteMealResponse{ID: intID, MessageResponse: "Meal was deleted successfully"}
 	c.JSON(http.StatusOK, response)
 }
 
@@ -184,9 +198,20 @@ func (a *Application) UpdateMeal(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// @Summary Add Meal to Milk Request
+// @Description This endpoint allows you to add a meal to a milk request by its ID.
+// @Tags meals
+// @Accept json
+// @Produce json
+// @Param ID path string true "Meal ID"
+// @Param request query schemas.AddMealToMilkReqRequest true "AddMealToMilkReqRequest"
+// @Success 200 {object} schemas.AddMealToMilkReqResponse "Meal added successfully"
+// @Failure 400 {object} schemas.ResponseMessage "Bad Request"
+// @Failure 500 {object} schemas.ResponseMessage "Internal Server Error"
+// @Router /api/meal_to_milk_request/{ID} [post]
 func (a *Application) AddMealToMilkReq(c *gin.Context) {
 	var request schemas.AddMealToMilkReqRequest
-	request.ID = c.Param("ID")
+	idFromQuery := c.Param("ID")
 	if err := c.ShouldBindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -197,7 +222,7 @@ func (a *Application) AddMealToMilkReq(c *gin.Context) {
 		return
 	}
 	newMilkRequestID := newMilkRequest.ID
-	mealID, err := strconv.Atoi(request.ID)
+	mealID, err := strconv.Atoi(idFromQuery)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -208,20 +233,32 @@ func (a *Application) AddMealToMilkReq(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, "Meal was added")
+	response := schemas.AddMealToMilkReqResponse{MealID: mealID, MilkRequestID: newMilkRequestID, MessageResponse: "Meal was added successfully to a new request"}
+	c.JSON(http.StatusOK, response)
 }
 
+// @Summary Add Meal to Milk Request
+// @Description This endpoint allows you to add a meal to a milk request by its ID.
+// @Tags meals
+// @Accept json
+// @Produce json
+// @Param ID path string true "Meal ID"
+// @Param image formData file true "Изображение получателя"
+// @Success 200 {object} schemas.ResponseMessage "Changed"
+// @Router /api/meal/change_pic/{ID} [post]
 func (a *Application) ChangePic(c *gin.Context) {
-	var request schemas.ChangePicRequest
+	var request schemas.ChangeImgRequest
+	var err error
 	request.ID = c.Param("ID")
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	request.Image, err = c.FormFile("image")
+	imageUrl, err := a.UploadImage(c, request.Image)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	log.Println(request.ID, request.ImageUrl)
-	err := a.repo.ChangePicByID(request.ID, request.ImageUrl)
+	err = a.repo.ChangePicByID(request.ID, imageUrl)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	c.JSON(http.StatusOK, "Meal Pic was updated")

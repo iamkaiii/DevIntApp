@@ -1,10 +1,8 @@
 ServiceHost = "0.0.0.0"
 ServicePort = 80
 
-# НАСТРОЙКИ Redis
-[Redis]
-
-# Таймауты в миллисекундах
-DialTimeout = "10s"
-ReadTimeout = "10s"
-#файл конфигурации
+[minio]
+Endpoint = "localhost:9000"
+BucketName = "development-internet-applications"
+MinioAccess = "minio"
+MinioSecret = "1223334444"

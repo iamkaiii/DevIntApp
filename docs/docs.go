@@ -158,6 +158,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/meal/change_pic/{ID}": {
+            "post": {
+                "description": "This endpoint allows you to add a meal to a milk request by its ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals"
+                ],
+                "summary": "Add Meal to Milk Request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Meal ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Изображение получателя",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Changed",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
         "/api/meal/{ID}": {
             "get": {
                 "description": "Get info about meal using its ID",
@@ -288,6 +327,50 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/meal_to_milk_request/{ID}": {
+            "post": {
+                "description": "This endpoint allows you to add a meal to a milk request by its ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals"
+                ],
+                "summary": "Add Meal to Milk Request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Meal ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Meal added successfully",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.AddMealToMilkReqResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/schemas.ResponseMessage"
                         }
@@ -573,6 +656,20 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "schemas.AddMealToMilkReqResponse": {
+            "type": "object",
+            "properties": {
+                "mealID": {
+                    "type": "integer"
+                },
+                "messageResponse": {
+                    "type": "string"
+                },
+                "milkRequestID": {
+                    "type": "integer"
                 }
             }
         },
