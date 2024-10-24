@@ -129,7 +129,7 @@ func (a *Application) UploadImage(c *gin.Context, image *multipart.FileHeader) (
 	return strings.Split(url.String(), "?")[0], nil
 }
 
-func (a *Application) DeleteImage(c *gin.Context, meal ds.Meals) error {
+func (a *Application) DeleteImage(meal ds.Meals) error {
 	splitedUrl := strings.Split(meal.ImageUrl, "/")
 	log.Println(splitedUrl)
 	err := a.minioClient.RemoveObject(context.Background(), a.config.Minio.BucketName, splitedUrl[len(splitedUrl)-1], minio.RemoveObjectOptions{})

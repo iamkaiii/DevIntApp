@@ -85,11 +85,9 @@ type FinishMilkRequestRequest struct {
 }
 
 type DeleteMealFromMilkReqRequest struct {
-	ID     string
 	MealID int `json:"meal_id"`
 }
 type UpdateAmountMilkReqMealRequest struct {
-	ID     string
 	MealID int `json:"meal_id"`
 	Amount int `json:"amount"`
 }

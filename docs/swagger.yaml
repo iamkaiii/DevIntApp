@@ -88,6 +88,11 @@ definitions:
       messageResponse:
         type: string
     type: object
+  schemas.DeleteMealFromMilkReqRequest:
+    properties:
+      meal_id:
+        type: integer
+    type: object
   schemas.DeleteMealResponse:
     properties:
       id:
@@ -138,6 +143,13 @@ definitions:
         type: string
     type: object
   schemas.ResponseMessage:
+    type: object
+  schemas.UpdateAmountMilkReqMealRequest:
+    properties:
+      amount:
+        type: integer
+      meal_id:
+        type: integer
     type: object
   schemas.UpdateMealRequest:
     properties:
@@ -442,6 +454,77 @@ paths:
       summary: Get all meals
       tags:
       - meals
+  /api/milk_req_meals/{ID}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет блюдо из запроса на молоко по ID запроса и MealID
+      parameters:
+      - description: ID заявки
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: Delete meal from meal request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.DeleteMealFromMilkReqRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Meal was deleted from milk request
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Удалить блюдо из запроса на молоко
+      tags:
+      - meals_and_requests
+    put:
+      consumes:
+      - application/json
+      description: Обновляет количество продукта в конкретной заявке
+      parameters:
+      - description: Milk request ID
+        in: path
+        name: ID
+        required: true
+        type: string
+      - description: Update amount meals in milk request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UpdateAmountMilkReqMealRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Meal was deleted from milk request
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      summary: Обновить количество продуктов в заявке
+      tags:
+      - meals_and_requests
   /api/milk_requests:
     get:
       consumes:
@@ -511,40 +594,6 @@ paths:
       summary: Register a new user
       tags:
       - users
-  /milk_req_meals/{ID}:
-    delete:
-      consumes:
-      - application/json
-      description: Удаляет блюдо из запроса на молоко по ID запроса и MealID
-      parameters:
-      - description: ID запроса на молоко
-        in: path
-        name: ID
-        required: true
-        type: string
-      - description: ID блюда
-        in: query
-        name: MealID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Meal was deleted from milk request
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/schemas.ResponseMessage'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/schemas.ResponseMessage'
-      summary: Удалить блюдо из запроса на молоко
-      tags:
-      - meals_and_requests
 securityDefinitions:
   BearerAuth:
     in: header

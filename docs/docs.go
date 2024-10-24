@@ -443,6 +443,115 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/milk_req_meals/{ID}": {
+            "put": {
+                "description": "Обновляет количество продукта в конкретной заявке",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals_and_requests"
+                ],
+                "summary": "Обновить количество продуктов в заявке",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Milk request ID",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update amount meals in milk request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.UpdateAmountMilkReqMealRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Meal was deleted from milk request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Удаляет блюдо из запроса на молоко по ID запроса и MealID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meals_and_requests"
+                ],
+                "summary": "Удалить блюдо из запроса на молоко",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID заявки",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Delete meal from meal request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.DeleteMealFromMilkReqRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Meal was deleted from milk request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
         "/api/milk_requests": {
             "get": {
                 "security": [
@@ -542,57 +651,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/schemas.ResponseMessage"
-                        }
-                    }
-                }
-            }
-        },
-        "/milk_req_meals/{ID}": {
-            "delete": {
-                "description": "Удаляет блюдо из запроса на молоко по ID запроса и MealID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "meals_and_requests"
-                ],
-                "summary": "Удалить блюдо из запроса на молоко",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID запроса на молоко",
-                        "name": "ID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "ID блюда",
-                        "name": "MealID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Meal was deleted from milk request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/schemas.ResponseMessage"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/schemas.ResponseMessage"
                         }
@@ -737,6 +795,14 @@ const docTemplate = `{
                 }
             }
         },
+        "schemas.DeleteMealFromMilkReqRequest": {
+            "type": "object",
+            "properties": {
+                "meal_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "schemas.DeleteMealResponse": {
             "type": "object",
             "properties": {
@@ -816,6 +882,17 @@ const docTemplate = `{
         },
         "schemas.ResponseMessage": {
             "type": "object"
+        },
+        "schemas.UpdateAmountMilkReqMealRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "meal_id": {
+                    "type": "integer"
+                }
+            }
         },
         "schemas.UpdateMealRequest": {
             "type": "object",

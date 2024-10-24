@@ -152,7 +152,7 @@ func (a *Application) DeleteMeal(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	err = a.DeleteImage(c, meal)
+	err = a.DeleteImage(meal)
 	if err != nil {
 		response := schemas.DeleteMealResponse{ID: intID, MessageResponse: "Meal was deleted successfully"}
 		c.JSON(418, response)
