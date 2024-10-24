@@ -255,6 +255,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
       summary: Create meal
       tags:
       - meals
@@ -284,6 +286,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
       summary: Delete meal by ID
       tags:
       - meals
@@ -348,6 +352,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
       summary: Update meal by ID
       tags:
       - meals
@@ -374,6 +380,8 @@ paths:
           description: Picture was changed sucessfully
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
       summary: Change picture By ID
       tags:
       - meals
@@ -404,6 +412,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
       summary: Add meal to milk request
       tags:
       - meals

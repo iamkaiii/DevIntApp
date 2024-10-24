@@ -103,6 +103,11 @@
         },
         "/api/meal": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create meal with properties",
                 "consumes": [
                     "application/json"
@@ -149,6 +154,11 @@
         },
         "/api/meal/change_pic/{ID}": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete meal using it's ID",
                 "consumes": [
                     "application/json"
@@ -235,6 +245,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update meal using it's ID with parametres",
                 "consumes": [
                     "application/json"
@@ -286,6 +301,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete meal using it's ID",
                 "consumes": [
                     "application/json"
@@ -330,6 +350,11 @@
         },
         "/api/meal_to_milk_request/{ID}": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "This endpoint allows you to add a meal to a milk request by it's ID.",
                 "consumes": [
                     "application/json"

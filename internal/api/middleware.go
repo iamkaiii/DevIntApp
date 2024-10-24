@@ -4,7 +4,7 @@ import (
 	"DevIntApp/internal/app/ds"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,14 +15,12 @@ const prefix = "Bearer"
 
 func (a *Application) RoleMiddleware(allowedRoles ...ds.Users) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		as := c.GetHeader("Authorization")
-		log.Println(as)
 		tokenString := a.extractTokenFromHandler(c.Request)
+		log.Println(tokenString)
 		if tokenString == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
 			return
 		}
-		log.Println(tokenString)
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("JWT_KEY")), nil
@@ -34,10 +32,9 @@ func (a *Application) RoleMiddleware(allowedRoles ...ds.Users) gin.HandlerFunc {
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
-
 		userID, ok := claims["userID"].(float64)
 
-		if a.tokenBlacklist(userID, tokenString) {
+		if !a.tokenActive(userID, tokenString) {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Токен устарел"})
 			return
 		}
@@ -83,15 +80,14 @@ func (a *Application) extractTokenFromHandler(req *http.Request) string {
 	return strings.Split(bearerToken, " ")[1]
 }
 
-func (a *Application) tokenBlacklist(userID float64, token string) bool {
+func (a *Application) tokenActive(userID float64, token string) bool {
 	userIDStr := strconv.FormatFloat(userID, 'f', 0, 64)
-	res, err := a.repo.CheckBlacklist(userIDStr)
+	res, err := a.repo.CheckActive(userIDStr)
 	if err != nil {
-		log.Println(err)
 		return false
 	}
-	if res == "revoked" {
-		return true
+	if res == "revoked" || res != token {
+		return false
 	}
-	return false
+	return true
 }

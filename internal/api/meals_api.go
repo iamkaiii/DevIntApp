@@ -81,6 +81,7 @@ func (a *Application) GetMeal(c *gin.Context) {
 // @Tags meals
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param body body schemas.CreateMealRequest true "Meal data"
 // @Success 201 {object} schemas.CreateMealResponse
 // @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
@@ -116,6 +117,7 @@ func (a *Application) CreateMeal(c *gin.Context) {
 // @Tags meals
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param ID path string true "Meal ID"
 // @Success 200 {object} schemas.DeleteMealResponse
 // @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
@@ -170,6 +172,7 @@ func (a *Application) DeleteMeal(c *gin.Context) {
 // @Tags meals
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param ID path string true "Meal ID"
 // @Param body body schemas.UpdateMealRequest true "Update meal data"
 // @Success 200 {object} schemas.UpdateMealResponse
@@ -214,6 +217,7 @@ func (a *Application) UpdateMeal(c *gin.Context) {
 // @Tags meals
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param ID path string true "Meal ID"
 // @Param request query schemas.AddMealToMilkReqRequest true "AddMealToMilkReqRequest"
 // @Success 200 {object} schemas.AddMealToMilkReqResponse "Meal added successfully"
@@ -253,6 +257,7 @@ func (a *Application) AddMealToMilkReq(c *gin.Context) {
 // @Tags meals
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param ID path string true "Meal ID"
 // @Param image formData file true "File"
 // @Success 200 {object} schemas.ResponseMessage "Picture was changed sucessfully"

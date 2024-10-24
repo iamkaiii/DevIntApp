@@ -12,7 +12,7 @@ func GenerateJWTToken(user ds.Users) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["userID"] = user.ID
 	claims["isModerator"] = user.IsModerator
-	claims["exp"] = time.Hour * 1
+	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
 	if err != nil {

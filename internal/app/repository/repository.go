@@ -345,7 +345,6 @@ func (r *Repository) LoginUser(user ds.Users) (error, string) {
 	if err != nil {
 		return err, ""
 	}
-
 	err = r.SaveJWTToken(user_in_db.ID, token)
 	if err != nil {
 		return err, ""
@@ -364,10 +363,10 @@ func (r *Repository) SaveJWTToken(userID int, token string) error {
 	return nil
 }
 
-func (r *Repository) CheckBlacklist(key string) (string, error) {
+func (r *Repository) CheckActive(key string) (string, error) {
 	result, err := r.rd.Get(key).Result()
 	if err != nil {
-		return "", err
+		return "revoked", err
 	}
 	return result, err
 }
@@ -378,6 +377,7 @@ func (r *Repository) LogoutUser(login string) error {
 	if err != nil {
 		return errors.New("Такой пользователь не существует")
 	}
+
 	userIDStr := strconv.Itoa(userInDB.ID)
 	exp := 24 * time.Hour
 	err = r.rd.Set(userIDStr, "revoked", exp).Err()
