@@ -39,8 +39,10 @@ func (a *Application) Run() {
 	log.Println("Server start up")
 	r := gin.Default()
 
-	r.GET("/api/meals", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetAllMeals)                          // да
-	r.GET("/api/meal/:ID", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetMeal)                           // да
+	// API MILK REQUESTS
+
+	r.GET("/api/meals", a.GetAllMeals)
+	r.GET("/api/meal/:ID", a.GetMeal)
 	r.POST("/api/meal", a.RoleMiddleware(ds.Users{IsModerator: true}), a.CreateMeal)                                                         // да
 	r.DELETE("/api/meal/:ID", a.RoleMiddleware(ds.Users{IsModerator: true}), a.DeleteMeal)                                                   // да
 	r.PUT("/api/meal/:ID", a.RoleMiddleware(ds.Users{IsModerator: true}), a.UpdateMeal)                                                      // да
@@ -49,15 +51,13 @@ func (a *Application) Run() {
 
 	r.GET("/api/milk_requests", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetAllMilkRequestsWithParams)
 	r.GET("/api/milk_request/:ID", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.GetMilkRequest)
-	r.PUT("/api/milk_request/:ID", a.UpdateFieldsMilkReq)
-	r.DELETE("/api/milk_request/:ID", a.DeleteMilkRequest)
-	r.PUT("/api/milk_request/form/:ID", a.FormMilkRequest)
+	r.PUT("/api/milk_request/:ID", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.UpdateFieldsMilkReq)
+	r.DELETE("/api/milk_request/:ID", a.RoleMiddleware(ds.Users{IsModerator: false}, ds.Users{IsModerator: true}), a.DeleteMilkRequest)
+	r.PUT("/api/milk_request/form/:ID", a.RoleMiddleware(ds.Users{IsModerator: true}), a.FormMilkRequest)
 	r.PUT("/api/milk_request/finish/:ID", a.RoleMiddleware(ds.Users{IsModerator: true}), a.FinishMilkRequest)
 
-	r.DELETE("/api/milk_req_meals/:ID", a.DeleteMealFromMilkReq)
-	r.PUT("/api/milk_req_meals/:ID", a.UpdateAmountMilkReqMeal)
-
-	///ЛАБА 4 ПО РИПУ///
+	r.DELETE("/api/milk_req_meals/:ID", a.RoleMiddleware(ds.Users{IsModerator: true}), a.DeleteMealFromMilkReq)
+	r.PUT("/api/milk_req_meals/:ID", a.RoleMiddleware(ds.Users{IsModerator: true}), a.UpdateAmountMilkReqMeal)
 
 	r.POST("/api/register_user", a.RegisterUser)
 	r.POST("/api/login_user", a.LoginUser)
