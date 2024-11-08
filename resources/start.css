@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;1,100;1,200;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+/**/
+
+.space{
+    cursor: auto;
+    font-family: 'Golos Text', sans-serif;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.header-class{
+    width: 100%;
+    background: white;
+    height: 135px;
+    position: fixed;
+    display: flex;
+    align-items: center; /* Вертикальное центрирование */
+}
+
+button[name="home-button"] {
+    border: none;
+    height: 120px;
+    width: 120px;
+    background-image: url("http://localhost:9000/development-internet-applications/mos_logo.png");
+    object-fit: cover;
+    background-size: cover;
+    background-position: center center;
+    margin-right: 370px; /* Отступ справа для отделения от заголовка */
+    margin-left: 10px;
+}
+
+h1 {
+    margin: 0; /* Убираем отступы у заголовка */
+    color: #cc2222;
+}
+
+button {
+    font-size: 20px;
+    border: 2px solid #c22; /* Без границы */
+    border-radius: 15px; /* Закругление углов у кнопки */
+    padding: 10px 15px; /* Отступы внутри кнопки */
+    cursor: pointer; /* Изменяем курсор на указатель при наведении */
+    background: white;
+    color: black; /* Цвет текста кнопки */
+}
+
+button:hover {
+    background-color: #fff0f0;
+}
+
+body {
+    background: linear-gradient( rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45) ), url("http://localhost:9000/development-internet-applications/start-background.jpg");
+    background-size: cover;
+}
+
+.main-info {
+    margin-top: 135px; /* Отступ равный высоте заголовка */
+    padding: 20px; /* Добавьте дополнительный отступ для визуального оформления */
+}

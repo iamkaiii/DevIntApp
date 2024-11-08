@@ -52,6 +52,12 @@ func (r *Repository) GetAllMeals() ([]ds.Meals, error) {
 	if err != nil {
 		return nil, err
 	}
+	for i := range prods {
+		v := &prods[i]
+		if v.ImageUrl == "" {
+			v.ImageUrl = "http://localhost:9000/development-internet-applications/nophoto.jpg"
+		}
+	}
 	return prods, nil
 }
 
@@ -61,6 +67,10 @@ func (r *Repository) GetMealByID(mealID string) (ds.Meals, error) {
 	if err != nil {
 		return ds.Meals{}, err
 	}
+	mealTemp := &meal
+	if mealTemp.ImageUrl == "" {
+		mealTemp.ImageUrl = "http://localhost:9000/development-internet-applications/nophoto.jpg"
+	}
 	return meal, nil
 }
 
@@ -69,6 +79,15 @@ func (r *Repository) GetMealByMealInfo(info string) (ds.Meals, error) {
 	err := r.db.Where("meal_info LIKE ?", "%"+info+"%").First(&milkMeal).Error
 	if err != nil {
 		return ds.Meals{}, err
+	}
+	return milkMeal, nil
+}
+
+func (r *Repository) GetMealsByMealInfo(info string) ([]ds.Meals, error) {
+	var milkMeal []ds.Meals
+	err := r.db.Where("meal_info LIKE ?", "%"+info+"%").First(&milkMeal).Error
+	if err != nil {
+		return []ds.Meals{}, err
 	}
 	return milkMeal, nil
 }
@@ -83,12 +102,12 @@ func (r *Repository) GetWorkingMilkRequest() ([]ds.MilkRequests, error) {
 }
 
 func (r *Repository) GetLastMilkRequest() (ds.MilkRequests, error) {
-	var milkrequest ds.MilkRequests
-	err := r.db.Order("date_create DESC").Find(&milkrequest).Error
+	var milkRequest ds.MilkRequests
+	err := r.db.Order("date_create DESC").Find(&milkRequest).Error
 	if err != nil {
 		return ds.MilkRequests{}, err
 	}
-	return milkrequest, nil
+	return milkRequest, nil
 }
 
 func (r *Repository) CreateMilkRequest() (ds.MilkRequests, error) {

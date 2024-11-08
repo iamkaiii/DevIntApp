@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;1,100;1,200;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+/**/
+
+body{
+    cursor: auto;
+    font-family: 'Golos Text', sans-serif;
+    background: linear-gradient( rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45) ), url("http://localhost:9000/development-internet-applications/start-background.jpg");
+    background-size: cover;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+header{
+    width: 100%;
+    background: white;
+    height: 130px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+h1{
+    color: #cc2222;
+    font-size: 32px;
+    font-weight: 600;
+    margin-left: 300px;;
+}
+
+.home-button{
+    border:none;
+    height: 120px;
+    width: 120px;
+    background-image: url("http://localhost:9000/development-internet-applications/mos_logo.png");
+    object-fit: cover;
+    background-size: cover;
+    background-position: center center;
+    border-radius: 15px;
+    background-color: transparent
+
+}
+
+.home-button:hover {
+    background-color: #fff0f0;
+}
+
+button{
+    margin: 10px;
+    padding:10px
+}
+
+.container{
+    padding-top: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.description{
+    text-align: center;
+    color: white;
+    font-size: 26px;
+}
+
+.to-home-button{
+    margin: 20px;
+    border-radius: 20px;
+    border:none;
+    font-size: 20px;
+    padding: 10px 30px;
+    color: #cc2222;
+    cursor: pointer;
+}
+
+.to-home-button:hover {
+    background-color: #fff0f0;
+}

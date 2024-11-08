@@ -12,10 +12,12 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -70,8 +72,181 @@ func (a *Application) Run() {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	err := r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-	if err != nil {
+	var err error
+
+	r.SetFuncMap(template.FuncMap{
+		"replaceNewline": func(text string) template.HTML {
+			return template.HTML(strings.ReplaceAll(text, "/n", "<br>"))
+		},
+		"replaceNewlineN": func(text string) template.HTML {
+			return template.HTML(strings.ReplaceAll(text, "\n", "<br>"))
+		},
+	})
+
+	r.Static("/css", "./resources")
+	r.LoadHTMLGlob("templates/*")
+
+	r.GET("/home", func(c *gin.Context) {
+		childMealsQuery := c.Query("childmeal") // Получаем поисковый запрос из URL
+		var FilteredMeals []ds.Meals
+
+		if childMealsQuery == "" {
+			FilteredMeals, err = a.repo.GetAllMeals()
+			if err != nil {
+				log.Println("unable to get all meals")
+				return
+			}
+		} else {
+			FilteredMeals, err = a.repo.GetMealsByMealInfo(childMealsQuery)
+			if err != nil {
+				log.Println("unable to get meal by info")
+				FilteredMeals = []ds.Meals{}
+			}
+		}
+
+		var milkReqLen int
+		var milkReqID int
+		milkReqWorking, err := a.repo.GetWorkingMilkRequest()
+		if err != nil {
+			log.Println("unable to get working milk request")
+		}
+		if len(milkReqWorking) == 0 {
+			milkReqLen = 0
+			milkReqID = 0
+
+		} else {
+			MilkMealsInWorkingReq, err1 := a.repo.GetMealsIDsByMilkRequestID(milkReqWorking[0].ID)
+			if err1 != nil {
+				log.Println("unable to get meals ids by cart")
+			}
+			milkReqLen = len(MilkMealsInWorkingReq)
+			milkReqID = milkReqWorking[0].ID
+
+		}
+
+		c.HTML(http.StatusOK, "home.html", gin.H{
+			"title":         "Заказы на молочную кухню",
+			"filteredCards": FilteredMeals,
+			"searchQuery":   childMealsQuery,
+			"meals_cnt":     milkReqLen,
+			"milkreq_ID":    milkReqID,
+		})
+	})
+
+	r.POST("/home", func(c *gin.Context) {
+
+		id := c.PostForm("add")
+		milkMealID, err := strconv.Atoi(id)
+
+		if err != nil { // если не получилось
+			log.Println("cant transform ind", err)
+			c.String(http.StatusBadRequest, "Invalid ID")
+			return
+		}
+
+		milkReqWorking, err := a.repo.GetWorkingMilkRequest()
+		var milkReqID int
+		if len(milkReqWorking) == 0 {
+			newMilkReq, err := a.repo.CreateMilkRequest()
+			if err != nil {
+				log.Println("unable to create milk request")
+			}
+			milkReqID = newMilkReq.ID
+		} else {
+			milkReqID = milkReqWorking[0].ID
+		}
+
+		err = a.repo.AddToMilkRequest(milkReqID, milkMealID)
+
+		c.Redirect(301, "/home")
+
+	})
+
+	r.GET("/meal/:id", func(c *gin.Context) {
+		id := c.Param("id") // Получаем ID из URL
+
+		childMeal, err := a.repo.GetMealByID(id)
+		if err != nil { // если не получилось
+			log.Printf("cant get product by id %v", err)
+			c.String(http.StatusBadRequest, "Invalid ID")
+			return
+		}
+
+		c.HTML(http.StatusOK, "meal.html", gin.H{
+			"title":     "Main website",
+			"meal_data": childMeal,
+		})
+	})
+
+	r.GET("/milkreq/:id", func(c *gin.Context) {
+
+		id := c.Param("id")
+		index, err := strconv.Atoi(id)
+		if err != nil { // если не получилось
+			log.Printf("cant get milkreq by id %v", err)
+			c.String(http.StatusBadRequest, "Invalid ID")
+			return
+		}
+
+		milkReqStatus, err := a.repo.GetMilkRequestStatusByID(index)
+		if err != nil {
+			log.Printf("cant get milkreq by id %v", err)
+		}
+		if milkReqStatus == 3 {
+			c.Redirect(301, "/home")
+		}
+
+		MealsIDs, err := a.repo.GetMealsIDsByMilkRequestID(index)
+		if err != nil {
+			log.Println("unable to get MealsIDsByCartID")
+
+			return
+		}
+
+		MealsInMilkReq := []ds.Meals{}
+		for _, v := range MealsIDs {
+			vString := strconv.Itoa(v)
+			mealTemp, err := a.repo.GetMealByID(vString)
+			if err != nil {
+				return
+			}
+			MealsInMilkReq = append(MealsInMilkReq, mealTemp)
+		}
+
+		c.HTML(http.StatusOK, "milkreq.html", gin.H{
+			"title":          "Корзина",
+			"MealsInMilkReq": MealsInMilkReq,
+			"MilkReqID":      index,
+		})
+	})
+
+	r.POST("/milkreq/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		index, err := strconv.Atoi(id)
+		if err != nil { // если не получилось
+			log.Printf("cant get cart by id %v", err)
+			c.String(http.StatusBadRequest, "Invalid ID")
+			return
+		}
+		err = a.repo.DeleteMilkRequest(index)
+		if err != nil {
+			log.Println("unable to delete milk request")
+			return
+		}
+		c.Redirect(301, "/home")
+
+	})
+
+	r.GET("/begin", func(c *gin.Context) {
+		description := "Услуга позволяет самостоятельно \n(минуя кабинет врача):\n- заказывать питание на молочной кухне;\n- изменять пункт выдачи продуктов;\n- управлять графиком получения продуктов питания;\n- просматривать информацию о полученной продукции."
+		c.HTML(http.StatusOK, "begin.html", gin.H{
+			"PageTitle":   "Заказ питания",
+			"Description": description,
+		})
+	})
+
+	errRun := r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	if errRun != nil {
 		log.Fatal(err)
 	}
 	log.Println("Server down")
@@ -103,7 +278,10 @@ func New() (*Application, error) {
 func (a *Application) UploadImage(c *gin.Context, image *multipart.FileHeader) (string, error) {
 	openFile, err := image.Open()
 	defer func() {
-		openFile.Close()
+		err = openFile.Close()
+		if err != nil {
+			log.Println(err, "file")
+		}
 	}()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

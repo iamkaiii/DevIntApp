@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="rus">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.PageTitle}}</title>
+    <link rel="stylesheet" href="/css/begin.css"/>
+</head>
+<body>
+<header>
+    <button class="home-button" onclick="window.location.href = 'http://localhost:8080/home';"></button>
+    <h1>Заказ питания на молочную кухню для детей</h1>
+</header>
+<div class="container">
+    <p class="description">{{ replaceNewlineN .Description}}</p>
+    <button class="to-home-button" onclick="window.location.href = 'http://localhost:8080/home';">Получить услугу</button>
+</div>
+</body>
+</html>
