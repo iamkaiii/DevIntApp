@@ -7,6 +7,9 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+.header{
+    margin: 10px;
+}
 button[name="home-button"] {
     border:none;
     height: 120px;
@@ -15,6 +18,10 @@ button[name="home-button"] {
     object-fit: cover;
     background-size: cover;
     background-position: center center;
+}
+
+button[name="search"] {
+    width: 238px;
 }
 
 .navigation_line {
@@ -27,12 +34,12 @@ button[name="home-button"] {
 }
 
 .search_field_class{
-
     display: flex; /* Используем Flexbox для контейнера */
     flex-direction: row; /* Элементы располагаются в одну строку */
     justify-content: flex-start; /* Двигаем элементы влево */
     gap: 20px; /* Расстояние в 10px между элементами */
 }
+
 
 .search_field {
     background-color: #d3d3d3; /* Светло серый фон */

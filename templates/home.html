@@ -17,11 +17,6 @@
             <input class="search_field" type="search" name="childmeal" id="site_search" placeholder="Искать здесь..." value="{{.searchQuery}}" size="97">
             <button name="search" type="submit">Поиск</button>
         </form>
-        <button name="cart"
-                onclick="window.location.href = 'http://localhost:8080/milkreq/{{.milkreq_ID}}';"
-                {{if eq .meals_cnt 0}} disabled {{end}}>
-            Заявка <span class="meals-count">{{.meals_cnt}}</span>
-        </button>
     </div>
     <div class="container">
         {{range .filteredCards}}
@@ -33,10 +28,6 @@
                 <p class="title-in-card">{{.MealInfo}}{{.MealWeight}}</p>
                 <div class="buttons-in-card">
                     <button onclick="window.location = 'http://localhost:8080/meal/{{.ID}}'" class="card-button">Подробнее</button>
-                    <form action="/home" method="post">
-                        <input type="hidden" name="add" value="{{.ID}}">
-                        <button class="card-button">+</button>
-                    </form>
                 </div>
             </div>
         </div>
