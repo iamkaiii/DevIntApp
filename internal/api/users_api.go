@@ -99,3 +99,34 @@ func (a *Application) LogoutUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }
+
+// @Summary Change user password
+// @Description Change the password of the authenticated user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body schemas.ChangePassword true "Password change data"
+// @Success 200 {object} schemas.ResponseMessage "Password changed successfully"
+// @Failure 400 {object} schemas.ResponseMessage "Invalid request body"
+// @Failure 500 {object} schemas.ResponseMessage "Internal server error"
+// @Router /api/change_user_info [put]
+func (a *Application) ChangeUserInfo(c *gin.Context) {
+	var request schemas.ChangePassword
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	userID, ok := c.Get("userID")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, ok)
+		return
+	}
+	userIDInt := userID.(float64)
+	err := a.repo.ChangePassword(request, userIDInt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Changed Password Successfully!"})
+}

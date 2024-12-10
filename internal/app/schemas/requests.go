@@ -13,6 +13,10 @@ type GetMealRequest struct {
 	ID string
 }
 
+type GetMealByNameRequest struct {
+	Name string `json:"name"`
+}
+
 type CreateMealRequest struct {
 	MealInfo   string `json:"meal_info"`
 	MealWeight string `json:"meal_weight"`
@@ -48,8 +52,7 @@ type DeleteImgRequest struct{}
 ///MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS MILK REQUESTS///
 
 type GetAllMilkRequestsWithParamsRequest struct {
-	HavingStatus bool `json:"is_status"`
-	Status       int  `json:"status"`
+	status int
 }
 
 type GetMilkRequestRequest struct {
@@ -79,9 +82,7 @@ type FormMilkRequestRequest struct {
 }
 
 type FinishMilkRequestRequest struct {
-	ID           string
-	Status       int       `json:"status"`
-	DeliveryDate time.Time `json:"delivery_date"`
+	ID string
 }
 
 type DeleteMealFromMilkReqRequest struct {
@@ -104,4 +105,9 @@ type LoginUserRequest struct {
 
 type LogoutUserRequest struct {
 	Login string `json:"login"`
+}
+
+type ChangePassword struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
 }

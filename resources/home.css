@@ -101,14 +101,14 @@ button:hover {
 }
 
 .card-image{
-    width: 100%;
+    width: 150px;
     height: 211px;
     border-radius: 20px;
     object-fit: cover;
 }
 
 .card-image-container{
-    width: 150%;
+    width: 150px;
 }
 
 .title-in-card{

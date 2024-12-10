@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   ds.Meals:
     properties:
@@ -66,6 +65,13 @@ definitions:
       milkRequestID:
         type: integer
     type: object
+  schemas.ChangePassword:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
   schemas.CreateMealRequest:
     properties:
       image_url:
@@ -100,9 +106,16 @@ definitions:
       messageResponse:
         type: string
     type: object
+  schemas.FinishMilkRequestRequest:
+    properties:
+      id:
+        type: string
+    type: object
   schemas.GetAllMealsResponse:
     properties:
       count:
+        type: integer
+      count_meals_in_draft_request:
         type: integer
       meals:
         items:
@@ -122,6 +135,17 @@ definitions:
     properties:
       meal:
         $ref: '#/definitions/ds.Meals'
+    type: object
+  schemas.GetMilkRequestResponse:
+    properties:
+      count:
+        type: integer
+      milk_request_meals:
+        items:
+          $ref: '#/definitions/ds.Meals'
+        type: array
+      milk_requests:
+        $ref: '#/definitions/ds.MilkRequests'
     type: object
   schemas.LoginUserRequest:
     properties:
@@ -173,13 +197,41 @@ definitions:
       messageResponse:
         type: string
     type: object
-host: localhost:8080
 info:
   contact: {}
-  description: This is API for Milk Kitchen requests
-  title: DevIntApp
-  version: "1.1"
 paths:
+  /api/change_user_info:
+    put:
+      consumes:
+      - application/json
+      description: Change the password of the authenticated user
+      parameters:
+      - description: Password change data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.ChangePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password changed successfully
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Change user password
+      tags:
+      - users
   /api/login_user:
     post:
       consumes:
@@ -525,21 +577,156 @@ paths:
       summary: Обновить количество продуктов в заявке
       tags:
       - meals_and_requests
+  /api/milk_request/{ID}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет заявку на молочную кухню по её ID
+      parameters:
+      - description: ID заявки
+        in: path
+        name: ID
+        required: true
+        type: integer
+      - in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: MilkRequest was deleted"  // Сообщение об успешном удалении
+          schema:
+            type: string
+        "400":
+          description: Неверный ID"  // Ошибка при неверном ID
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Ошибка сервера"  // Ошибка сервера при удалении заявки
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth  // Требуется аутентификация: []
+      summary: Удалить заявку на молочную кухню
+      tags:
+      - milk_requests
+    get:
+      consumes:
+      - application/json
+      description: Получить данные заявки на молочную кухню по её ID, включая список
+        связанных блюд
+      parameters:
+      - description: ID заявки
+        in: path
+        name: ID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.GetMilkRequestResponse'
+        "400":
+          description: Неверный ID
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Получить данные заявки на молочную кухню
+      tags:
+      - milk_requests
+  /api/milk_request/finish/{ID}:
+    put:
+      consumes:
+      - application/json
+      description: Завершаем заявку на молочную кухню по переданному ID и параметрам
+        в теле запроса (статус и дата доставки)
+      parameters:
+      - description: ID заявки
+        in: path
+        name: ID
+        required: true
+        type: integer
+      - description: Данные для завершения заявки
+        in: body
+        name: requestBody
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.FinishMilkRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Milk Request was Finished
+          schema:
+            type: string
+        "400":
+          description: Ошибка в параметрах запроса
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Завершить заявку на молочную кухню
+      tags:
+      - milk_requests
+  /api/milk_request/form/{ID}:
+    put:
+      consumes:
+      - application/json
+      description: Формирует заявку на молочную кухню по переданному ID и параметрам
+        запроса
+      parameters:
+      - description: ID заявки
+        in: path
+        name: ID
+        required: true
+        type: integer
+      - in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Milk Request was Formed
+          schema:
+            type: string
+        "400":
+          description: Ошибка в параметрах запроса
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/schemas.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Создать заявку на молочную кухню
+      tags:
+      - milk_requests
   /api/milk_requests:
     get:
       consumes:
       - application/json
       description: Получить список запросов на молоко с возможностью фильтрации по
-        статусу и датам
+        статусу и пользователю
       parameters:
       - description: Статус заявки
         in: query
         name: status
-        type: string
-      - description: Наличие статуса
-        in: query
-        name: is_status
-        type: string
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -548,11 +735,11 @@ paths:
           schema:
             $ref: '#/definitions/schemas.GetAllMilkRequestsWithParamsResponse'
         "400":
-          description: Bad Request
+          description: Неверный запрос, отсутствует параметр status или он некорректен
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
         "500":
-          description: Internal Server Error
+          description: Ошибка сервера
           schema:
             $ref: '#/definitions/schemas.ResponseMessage'
       security:
@@ -594,9 +781,4 @@ paths:
       summary: Register a new user
       tags:
       - users
-securityDefinitions:
-  BearerAuth:
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

@@ -43,6 +43,7 @@ func (a *Application) RoleMiddleware(allowedRoles ...ds.Users) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
 			return
 		}
+
 		c.Set("userID", float64(userID))
 
 		userRole, ok := claims["isModerator"].(bool)

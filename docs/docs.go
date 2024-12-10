@@ -15,6 +15,57 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/change_user_info": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Change the password of the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Change user password",
+                "parameters": [
+                    {
+                        "description": "Password change data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ChangePassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
         "/api/login_user": {
             "post": {
                 "description": "Authenticates a user and returns a JWT token.",
@@ -552,6 +603,219 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/milk_request/finish/{ID}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Завершаем заявку на молочную кухню по переданному ID и параметрам в теле запроса (статус и дата доставки)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "milk_requests"
+                ],
+                "summary": "Завершить заявку на молочную кухню",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для завершения заявки",
+                        "name": "requestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schemas.FinishMilkRequestRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Milk Request was Finished",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка в параметрах запроса",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/milk_request/form/{ID}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Формирует заявку на молочную кухню по переданному ID и параметрам запроса",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "milk_requests"
+                ],
+                "summary": "Создать заявку на молочную кухню",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Milk Request was Formed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка в параметрах запроса",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/milk_request/{ID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Получить данные заявки на молочную кухню по её ID, включая список связанных блюд",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "milk_requests"
+                ],
+                "summary": "Получить данные заявки на молочную кухню",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.GetMilkRequestResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный ID",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth  // Требуется аутентификация": []
+                    }
+                ],
+                "description": "Удаляет заявку на молочную кухню по её ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "milk_requests"
+                ],
+                "summary": "Удалить заявку на молочную кухню",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID заявки",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "MilkRequest was deleted\"  // Сообщение об успешном удалении",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный ID\"  // Ошибка при неверном ID",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера\"  // Ошибка сервера при удалении заявки",
+                        "schema": {
+                            "$ref": "#/definitions/schemas.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
         "/api/milk_requests": {
             "get": {
                 "security": [
@@ -559,7 +823,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Получить список запросов на молоко с возможностью фильтрации по статусу и датам",
+                "description": "Получить список запросов на молоко с возможностью фильтрации по статусу и пользователю",
                 "consumes": [
                     "application/json"
                 ],
@@ -572,16 +836,11 @@ const docTemplate = `{
                 "summary": "Получить все заявки на молочную кухню с параметрами",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Статус заявки",
                         "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Наличие статуса",
-                        "name": "is_status",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -592,13 +851,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверный запрос, отсутствует параметр status или он некорректен",
                         "schema": {
                             "$ref": "#/definitions/schemas.ResponseMessage"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/schemas.ResponseMessage"
                         }
@@ -761,6 +1020,17 @@ const docTemplate = `{
                 }
             }
         },
+        "schemas.ChangePassword": {
+            "type": "object",
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
+                    "type": "string"
+                }
+            }
+        },
         "schemas.CreateMealRequest": {
             "type": "object",
             "properties": {
@@ -814,10 +1084,21 @@ const docTemplate = `{
                 }
             }
         },
+        "schemas.FinishMilkRequestRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "schemas.GetAllMealsResponse": {
             "type": "object",
             "properties": {
                 "count": {
+                    "type": "integer"
+                },
+                "count_meals_in_draft_request": {
                     "type": "integer"
                 },
                 "meals": {
@@ -847,6 +1128,23 @@ const docTemplate = `{
             "properties": {
                 "meal": {
                     "$ref": "#/definitions/ds.Meals"
+                }
+            }
+        },
+        "schemas.GetMilkRequestResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "milk_request_meals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.Meals"
+                    }
+                },
+                "milk_requests": {
+                    "$ref": "#/definitions/ds.MilkRequests"
                 }
             }
         },
@@ -928,24 +1226,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.1",
-	Host:             "localhost:8080",
-	BasePath:         "/",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "DevIntApp",
-	Description:      "This is API for Milk Kitchen requests",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

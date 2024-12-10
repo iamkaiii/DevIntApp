@@ -6,8 +6,13 @@ import (
 )
 
 type GetAllMealsResponse struct {
-	ID    int        `json:"milk_req_ID"`
-	Count int        `json:"count"`
+	ID         int        `json:"milk_req_ID"`
+	Count      int        `json:"count"`
+	Meals      []ds.Meals `json:"meals"`
+	CountDraft int        `json:"count_meals_in_draft_request"`
+}
+
+type GetMealByNameResponse struct {
 	Meals []ds.Meals `json:"meals"`
 }
 

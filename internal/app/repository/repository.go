@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"github.com/go-redis/redis"
 	log "github.com/sirupsen/logrus"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"os"
@@ -52,13 +51,21 @@ func (r *Repository) GetAllMeals() ([]ds.Meals, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i := range prods {
-		v := &prods[i]
-		if v.ImageUrl == "" {
-			v.ImageUrl = "http://localhost:9000/development-internet-applications/nophoto.jpg"
-		}
-	}
 	return prods, nil
+}
+
+func (r *Repository) GetMealsByName(name string) ([]ds.Meals, error) {
+	var meals []ds.Meals
+
+	// Приведем name к нижнему регистру и уберем пробелы
+	name = "%" + name + "%" // Используем '%' в начале и в конце для поиска в любом месте
+
+	err := r.db.Where("meal_info LIKE ?", name).Find(&meals).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return meals, nil
 }
 
 func (r *Repository) GetMealByID(mealID string) (ds.Meals, error) {
@@ -66,10 +73,6 @@ func (r *Repository) GetMealByID(mealID string) (ds.Meals, error) {
 	err := r.db.Where("id = ?", mealID).Find(&meal).Error
 	if err != nil {
 		return ds.Meals{}, err
-	}
-	mealTemp := &meal
-	if mealTemp.ImageUrl == "" {
-		mealTemp.ImageUrl = "http://localhost:9000/development-internet-applications/nophoto.jpg"
 	}
 	return meal, nil
 }
@@ -110,8 +113,10 @@ func (r *Repository) GetLastMilkRequest() (ds.MilkRequests, error) {
 	return milkRequest, nil
 }
 
-func (r *Repository) CreateMilkRequest() (ds.MilkRequests, error) {
-	creatorID := 1
+func (r *Repository) CreateMilkRequest(userID float64) (int, error) {
+	log.Println(userID)
+	userIDInt := int(userID)
+	creatorID := userIDInt
 	newMilkRequest := ds.MilkRequests{
 		Status:     0,
 		DateCreate: time.Now(),
@@ -120,10 +125,10 @@ func (r *Repository) CreateMilkRequest() (ds.MilkRequests, error) {
 	}
 	err := r.db.Create(&newMilkRequest).Error
 	if err != nil {
-		return ds.MilkRequests{}, err
+		return 0, err
 	}
 	milkrequest, err := r.GetLastMilkRequest()
-	return milkrequest, err
+	return milkrequest.ID, err
 }
 
 func (r *Repository) GetMilkRequestByID(id int) (ds.MilkRequests, error) { // ?
@@ -135,17 +140,41 @@ func (r *Repository) GetMilkRequestByID(id int) (ds.MilkRequests, error) { // ?
 	return milkrequest, nil
 }
 
-func (r *Repository) AddToMilkRequest(milkRequestID int, milkMealID int) error {
-	milkReqMeal := ds.MilkRequestsMeals{
-		MilkRequestID: milkRequestID,
-		MealID:        milkMealID,
-	}
-	err := r.db.Create(&milkReqMeal).Error
+func (r *Repository) AddToMilkRequest(milkMealID int, UserID float64) (error, int) {
+	var milkRequest ds.MilkRequests
+	err := r.db.Where("status = ? AND creator_id = ?", 0, UserID).First(&milkRequest).Error
+	// Если заявка не найдена, создаем новую заявку
 	if err != nil {
-		return fmt.Errorf("failed to add to milk request: %w", err)
+		milkRequest.ID, err = r.CreateMilkRequest(UserID)
+		if err != nil {
+			return err, -1
+		}
 	}
-
-	return nil
+	log.Println("ok1")
+	var milkReqMeal ds.MilkRequestsMeals
+	err = r.db.Where("milk_request_id = ? AND meal_id = ?", milkRequest.ID, milkMealID).First(&milkReqMeal).Error
+	if err != nil && err == gorm.ErrRecordNotFound {
+		newMilkReqMeal := ds.MilkRequestsMeals{
+			MilkRequestID: milkRequest.ID,
+			MealID:        milkMealID,
+			Amount:        1,
+		}
+		err = r.db.Create(&newMilkReqMeal).Error
+		if err != nil {
+			return fmt.Errorf("failed to add meal to milk request: %w", err), 0
+		}
+		log.Println("ok2")
+	} else if err == nil {
+		err = r.db.Save(&milkReqMeal).Error
+		if err != nil {
+			return fmt.Errorf("failed to update meal amount in milk request: %w", err), 0
+		}
+		log.Println("ok3")
+	} else {
+		return fmt.Errorf("error while checking MilkRequestsMeals: %w", err), 0
+	}
+	log.Println("ok4", milkRequest.ID)
+	return nil, milkRequest.ID
 }
 
 func (r *Repository) GetMealsIDsByMilkRequestID(milkRequestID int) ([]int, error) {
@@ -239,15 +268,16 @@ func (r *Repository) ChangePicByID(id string, image string) error {
 	return nil
 }
 
-func (r *Repository) GetAllMilkRequestsWithFilters(status int, having_status bool, isModerator bool, userID float64) ([]ds.MilkRequests, error) {
+func (r *Repository) GetAllMilkRequestsWithFilters(status int, userID float64) ([]ds.MilkRequests, error) {
 	var milkRequests []ds.MilkRequests
-	log.Println(status, having_status)
 	db := r.db // Инициализируем db без фильтра по дате
-	if having_status {
-		db = db.Where("Status = ?", status) // Фильтр по статусу
-	}
-	if isModerator == false {
+	if status != 6 && status != 7 {
 		db = db.Where("Creator_ID = ? AND Status = ?", userID, status)
+	}
+	if status == 7 {
+		db = db.Where("Creator_ID = ? AND (Status != ? AND Status != ?)", userID, 3, 0)
+	} else {
+		db = db.Where("Creator_ID = ?", userID)
 	}
 	err := db.Find(&milkRequests).Error // Выборка записей из базы данных
 	if err != nil {
@@ -258,6 +288,7 @@ func (r *Repository) GetAllMilkRequestsWithFilters(status int, having_status boo
 
 func (r *Repository) UpdateFieldsMilkReq(request schemas.UpdateFieldsMilkReqRequest) error {
 	var milkRequest ds.MilkRequests
+	log.Println(request)
 	// Загрузка записи из базы данных по ID
 	if err := r.db.First(&milkRequest, "id = ?", request.ID).Error; err != nil {
 		return err
@@ -286,10 +317,12 @@ func (r *Repository) FormMilkRequest(id string) error {
 		return err
 	}
 	if milkRequest.CreatorID == nil {
-		err := fmt.Errorf("Unable to finish request. Probably some fields are empty")
+		err := fmt.Errorf("Unable to form request. Probably some fields are empty")
 		return err
 	}
 	milkRequest.Status = 1
+	milkRequest.DeliveryDate = time.Now()
+	milkRequest.DateUpdate = time.Now()
 	if err := r.db.Save(&milkRequest).Error; err != nil {
 		return err
 	}
@@ -404,4 +437,41 @@ func (r *Repository) LogoutUser(login string) error {
 		return err
 	}
 	return nil
+}
+
+func (r *Repository) ChangePassword(request schemas.ChangePassword, userID float64) error {
+	var user ds.Users
+	if err := r.db.Where("id = ? AND password = ?", userID, request.OldPassword).First(&user).Error; err != nil {
+		return err
+	}
+	user.Password = request.NewPassword
+	if err := r.db.Save(&user).Error; err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func (r *Repository) FindDraftRequest(userID float64) (int, int) {
+	var milkRequest ds.MilkRequests
+	// Находим черновую заявку
+	err := r.db.Where("creator_id = ? AND status = ?", userID, 0).First(&milkRequest).Error
+	if err != nil {
+		return 0, 0 // Если черновик не найден, возвращаем 0, пустой массив и сумму 0
+	}
+
+	// Находим все записи из таблицы MilkRequestsMeals, связанные с MilkRequestID
+	var milkRequestMeals []ds.MilkRequestsMeals
+	err = r.db.Where("milk_request_id = ?", milkRequest.ID).Find(&milkRequestMeals).Error
+	if err != nil {
+		return milkRequest.ID, 0 // Если записи не найдены, возвращаем ID заявки, пустой массив и сумму 0
+	}
+
+	// Считаем общую сумму (каждая запись * amount)
+	var totalAmount int
+	for _, meal := range milkRequestMeals {
+		totalAmount += (meal.Amount) // Предположим, что "каждая запись" — это amount
+	}
+
+	return milkRequest.ID, totalAmount
 }

@@ -4,8 +4,10 @@ import (
 	"DevIntApp/internal/app/ds"
 	"DevIntApp/internal/app/schemas"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"github.com/golang-jwt/jwt"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -21,6 +23,7 @@ import (
 // @Router /api/meals [get]
 func (a *Application) GetAllMeals(c *gin.Context) {
 	var request schemas.GetAllMealsRequest
+
 	if err := c.ShouldBindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -31,21 +34,42 @@ func (a *Application) GetAllMeals(c *gin.Context) {
 		return
 	}
 	mealsCnt := len(meals)
-	activeMilkRequest, err := a.repo.GetWorkingMilkRequest()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	var id int
-	if len(activeMilkRequest) == 0 {
-		c.JSON(http.StatusOK, gin.H{"Count": mealsCnt, "Meals": meals})
+	tokenString := a.extractTokenFromHandler(c.Request)
+	if tokenString == "" {
+		response := schemas.GetAllMealsResponse{Count: mealsCnt, Meals: meals}
+		c.JSON(http.StatusOK, response)
 		return
 	} else {
-		id = activeMilkRequest[0].ID
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("JWT_KEY")), nil
+		})
+
+		log.Println(token, err)
+		if err != nil || !token.Valid {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		userID, ok := claims["userID"].(float64)
+
+		if !a.tokenActive(userID, tokenString) {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Токен устарел"})
+			return
+		}
+
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
+			return
+		}
+
+		c.Set("userID", float64(userID))
+		milkRequestID, total := a.repo.FindDraftRequest(userID)
+		response := schemas.GetAllMealsResponse{ID: milkRequestID, Count: mealsCnt, Meals: meals, CountDraft: total}
+		c.JSON(http.StatusOK, response)
+		return
+
 	}
-	response := schemas.GetAllMealsResponse{ID: id, Count: mealsCnt, Meals: meals}
-	c.JSON(http.StatusOK, response)
-	return
 }
 
 // @Summary Get meal by ID
@@ -62,7 +86,6 @@ func (a *Application) GetAllMeals(c *gin.Context) {
 func (a *Application) GetMeal(c *gin.Context) {
 	var request schemas.GetMealRequest
 	request.ID = c.Param("ID")
-	log.Println(request.ID)
 	if err := c.ShouldBindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -135,7 +158,6 @@ func (a *Application) DeleteMeal(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	log.Println(meal)
 
 	err = a.repo.DeleteMealByID(request.ID)
 	if err != nil {
@@ -231,24 +253,24 @@ func (a *Application) AddMealToMilkReq(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	newMilkRequest, err := a.repo.CreateMilkRequest()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	userID, ok := c.Get("userID")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, ok)
 		return
 	}
-	newMilkRequestID := newMilkRequest.ID
+	userIDInt := userID.(float64)
 	mealID, err := strconv.Atoi(idFromQuery)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	err = a.repo.AddToMilkRequest(newMilkRequestID, mealID)
-	log.Println(err)
-	if err != nil {
+	milkRequestID := -1
+	err, milkRequestID = a.repo.AddToMilkRequest(mealID, userIDInt)
+	if err != nil || milkRequestID == -1 {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	response := schemas.AddMealToMilkReqResponse{MealID: mealID, MilkRequestID: newMilkRequestID, MessageResponse: "Meal was added successfully to a new request"}
+	response := schemas.AddMealToMilkReqResponse{MealID: mealID, MilkRequestID: milkRequestID, MessageResponse: "Meal was added successfully to  request"}
 	c.JSON(http.StatusOK, response)
 }
 
@@ -278,4 +300,20 @@ func (a *Application) ChangePic(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, "Meal Pic was updated")
+}
+
+func (a *Application) GetMealsByName(c *gin.Context) {
+	var request schemas.GetMealByNameRequest
+	Name := c.Param("meal")
+	if err := c.ShouldBindQuery(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	meals, err := a.repo.GetMealsByName(Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	response := schemas.GetMealByNameResponse{Meals: meals}
+	c.JSON(http.StatusOK, response)
 }
